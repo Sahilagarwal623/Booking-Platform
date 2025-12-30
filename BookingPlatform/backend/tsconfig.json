@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    /* Base Options */
+    "rootDir": "./",
+    "outDir": "./dist",
+    "target": "es2016", /* Compatible with most Node versions */
+    "module": "commonjs", /* Standard Node module system */
+    "moduleResolution": "node",
+    "esModuleInterop": true, /* Allows importing CommonJS modules cleanly */
+    "skipLibCheck": true, /* Speeds up compilation */
+    "forceConsistentCasingInFileNames": true,
+    /* Strictness */
+    "strict": true, /* Keeps type safety high */
+    "noUncheckedIndexedAccess": true, /* Good for safety, keeps you from accessing array[100] without checking */
+    /* Types */
+    // "types": ["node"]       /* Optional: Only needed if automatic type lookup fails */
+  },
+  "include": [
+    "src/**/*.ts",
+    "generated/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
