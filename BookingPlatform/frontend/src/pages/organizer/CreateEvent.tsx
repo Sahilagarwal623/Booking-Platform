@@ -289,7 +289,7 @@ export default function CreateEvent() {
                     <button
                         type="submit"
                         disabled={loading || venues.length === 0}
-                        className="flex-1 py-3 px-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-500/25"
+                        className="flex-1 py-3 px-4 bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-500/25"
                     >
                         {loading ? (
                             <span className="flex items-center justify-center gap-2">
