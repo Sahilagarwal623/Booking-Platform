@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BookingService = void 0;
 const database_1 = require("../config/database");
 const middleware_1 = require("../middleware");
-const prisma_1 = require("../../generated/prisma");
+const client_1 = require("@prisma/client");
 /**
  * Booking Service
  * Handles booking creation, confirmation, and cancellation with proper locking
@@ -33,7 +33,7 @@ class BookingService {
                         id: { in: seatIds },
                         eventId,
                         heldBy: userId,
-                        status: prisma_1.SeatStatus.HELD,
+                        status: client_1.SeatStatus.HELD,
                         heldUntil: { gt: new Date() },
                     },
                     include: {
@@ -58,7 +58,7 @@ class BookingService {
                     data: {
                         userId,
                         eventId,
-                        status: prisma_1.BookingStatus.PENDING,
+                        status: client_1.BookingStatus.PENDING,
                         totalAmount,
                         taxAmount,
                         finalAmount,
@@ -119,7 +119,7 @@ class BookingService {
                 if (!booking) {
                     throw new middleware_1.ApiError(404, 'Booking not found');
                 }
-                if (booking.status !== prisma_1.BookingStatus.PENDING) {
+                if (booking.status !== client_1.BookingStatus.PENDING) {
                     throw new middleware_1.ApiError(400, `Booking is already ${booking.status.toLowerCase()}`);
                 }
                 if (booking.expiresAt && booking.expiresAt < new Date()) {
@@ -130,10 +130,10 @@ class BookingService {
                     where: {
                         id: bookingId,
                         version: booking.version, // Optimistic lock check
-                        status: prisma_1.BookingStatus.PENDING,
+                        status: client_1.BookingStatus.PENDING,
                     },
                     data: {
-                        status: prisma_1.BookingStatus.CONFIRMED,
+                        status: client_1.BookingStatus.CONFIRMED,
                         paymentId,
                         paymentMethod,
                         confirmedAt: new Date(),
@@ -149,7 +149,7 @@ class BookingService {
                 yield tx.seat.updateMany({
                     where: { id: { in: seatIds } },
                     data: {
-                        status: prisma_1.SeatStatus.BOOKED,
+                        status: client_1.SeatStatus.BOOKED,
                         heldBy: null,
                         heldUntil: null,
                     },
@@ -192,7 +192,7 @@ class BookingService {
                     },
                 });
             }), {
-                isolationLevel: prisma_1.Prisma.TransactionIsolationLevel.Serializable,
+                maxWait: 5000,
                 timeout: 15000,
             });
         });
@@ -217,7 +217,7 @@ class BookingService {
                 if (!booking) {
                     throw new middleware_1.ApiError(404, 'Booking not found');
                 }
-                if (booking.status === prisma_1.BookingStatus.CANCELLED) {
+                if (booking.status === client_1.BookingStatus.CANCELLED) {
                     throw new middleware_1.ApiError(400, 'Booking is already cancelled');
                 }
                 // Check if event hasn't started yet
@@ -228,18 +228,23 @@ class BookingService {
                 yield tx.booking.update({
                     where: { id: bookingId },
                     data: {
-                        status: prisma_1.BookingStatus.CANCELLED,
+                        status: client_1.BookingStatus.CANCELLED,
                         cancelledAt: new Date(),
                         cancellationReason: reason,
                         version: { increment: 1 },
                     },
                 });
-                // Release seats
+                // Get seat IDs before deleting items
                 const seatIds = booking.items.map((item) => item.seatId);
+                // Delete booking items to free up the seatId unique constraint
+                yield tx.bookingItem.deleteMany({
+                    where: { bookingId },
+                });
+                // Release seats
                 yield tx.seat.updateMany({
                     where: { id: { in: seatIds } },
                     data: {
-                        status: prisma_1.SeatStatus.AVAILABLE,
+                        status: client_1.SeatStatus.AVAILABLE,
                         heldBy: null,
                         heldUntil: null,
                     },
@@ -355,32 +360,36 @@ class BookingService {
      */
     static expirePendingBookings() {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield database_1.prisma.$transaction((tx) => __awaiter(this, void 0, void 0, function* () {
-                // Find expired pending bookings
-                const expiredBookings = yield tx.booking.findMany({
-                    where: {
-                        status: prisma_1.BookingStatus.PENDING,
-                        expiresAt: { lt: new Date() },
-                    },
-                    include: {
-                        items: true,
-                    },
-                });
-                if (expiredBookings.length === 0) {
-                    return 0;
-                }
-                // Update status to EXPIRED
-                yield tx.booking.updateMany({
-                    where: {
-                        id: { in: expiredBookings.map((b) => b.id) },
-                    },
-                    data: {
-                        status: prisma_1.BookingStatus.EXPIRED,
-                    },
-                });
-                return expiredBookings.length;
-            }));
-            return { expired: result };
+            // Find expired pending bookings
+            const expiredBookings = yield database_1.prisma.booking.findMany({
+                where: {
+                    status: client_1.BookingStatus.PENDING,
+                    expiresAt: { lt: new Date() },
+                },
+                include: {
+                    items: true,
+                },
+            });
+            if (expiredBookings.length === 0) {
+                return { expired: 0 };
+            }
+            const bookingIds = expiredBookings.map((b) => b.id);
+            // Delete booking items first (to free up the seatId unique constraint)
+            yield database_1.prisma.bookingItem.deleteMany({
+                where: {
+                    bookingId: { in: bookingIds },
+                },
+            });
+            // Update booking status to EXPIRED
+            yield database_1.prisma.booking.updateMany({
+                where: {
+                    id: { in: bookingIds },
+                },
+                data: {
+                    status: client_1.BookingStatus.EXPIRED,
+                },
+            });
+            return { expired: expiredBookings.length };
         });
     }
 }

@@ -16,12 +16,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.prisma = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const client_1 = require("../../generated/prisma/client");
+const client_1 = require("@prisma/client");
 const adapter_pg_1 = require("@prisma/adapter-pg");
 const pg_1 = require("pg");
 // Create PostgreSQL connection pool
 const pool = new pg_1.Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: process.env.DIRECT_URL || process.env.DATABASE_URL,
+    max: 20, // Increase max connections (default is 10)
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000, // Wait 10s for a connection
 });
 // Create Prisma adapter
 const adapter = new adapter_pg_1.PrismaPg(pool);

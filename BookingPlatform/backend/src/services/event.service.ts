@@ -1,6 +1,6 @@
 import { prisma } from '../config/database';
 import { ApiError } from '../middleware';
-import { EventStatus, SeatStatus, EventCategory, Prisma, BookingStatus } from '../../generated/prisma/client';
+import { EventStatus, SeatStatus, EventCategory, Prisma, BookingStatus } from '@prisma/client';
 
 interface CreateEventInput {
     title: string;

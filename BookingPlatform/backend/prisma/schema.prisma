@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -10,15 +9,15 @@ datasource db {
 // ==================== USER MANAGEMENT ====================
 
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  password      String
-  name          String
-  phone         String?
-  role          UserRole  @default(USER)
-  isVerified    Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id         String   @id @default(uuid())
+  email      String   @unique
+  password   String
+  name       String
+  phone      String?
+  role       UserRole @default(USER)
+  isVerified Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   bookings      Booking[]
   reviews       Review[]
@@ -36,35 +35,35 @@ enum UserRole {
 // ==================== VENUE MANAGEMENT ====================
 
 model Venue {
-  id          String   @id @default(uuid())
-  name        String
-  address     String
-  city        String
-  state       String
-  country     String
-  pincode     String
-  capacity    Int
-  amenities   String[] // ["Parking", "AC", "Cafeteria"]
-  imageUrl    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(uuid())
+  name      String
+  address   String
+  city      String
+  state     String
+  country   String
+  pincode   String
+  capacity  Int
+  amenities String[] // ["Parking", "AC", "Cafeteria"]
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  events      Event[]
-  sections    Section[]
+  events   Event[]
+  sections Section[]
 
   @@index([city])
 }
 
 model Section {
-  id        String   @id @default(uuid())
-  venueId   String
-  name      String   // "VIP", "Balcony", "Ground Floor"
-  rowCount  Int
-  seatsPerRow Int
-  priceMultiplier Float @default(1.0)
-  
-  venue     Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
-  seats     Seat[]
+  id              String @id @default(uuid())
+  venueId         String
+  name            String // "VIP", "Balcony", "Ground Floor"
+  rowCount        Int
+  seatsPerRow     Int
+  priceMultiplier Float  @default(1.0)
+
+  venue Venue  @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  seats Seat[]
 
   @@unique([venueId, name])
 }
@@ -72,7 +71,7 @@ model Section {
 // ==================== EVENT MANAGEMENT ====================
 
 model Event {
-  id              String      @id @default(uuid())
+  id              String        @id @default(uuid())
   title           String
   description     String
   category        EventCategory
@@ -83,17 +82,17 @@ model Event {
   basePrice       Float
   totalSeats      Int
   availableSeats  Int
-  status          EventStatus @default(DRAFT)
+  status          EventStatus   @default(DRAFT)
   imageUrl        String?
   bannerUrl       String?
   termsConditions String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
-  venue           Venue       @relation(fields: [venueId], references: [id])
-  seats           Seat[]
-  bookings        Booking[]
-  reviews         Review[]
+  venue    Venue     @relation(fields: [venueId], references: [id])
+  seats    Seat[]
+  bookings Booking[]
+  reviews  Review[]
 
   @@index([eventDate])
   @@index([category])
@@ -120,21 +119,21 @@ enum EventStatus {
 // ==================== SEAT MANAGEMENT ====================
 
 model Seat {
-  id          String      @id @default(uuid())
-  eventId     String
-  sectionId   String
-  rowNumber   String      // "A", "B", "C"
-  seatNumber  Int         // 1, 2, 3
-  price       Float
-  status      SeatStatus  @default(AVAILABLE)
-  
-  // Locking fields for seat hold mechanism
-  heldBy      String?     // User ID who is holding
-  heldUntil   DateTime?   // When the hold expires
-  version     Int         @default(0) // For optimistic locking
+  id         String     @id @default(uuid())
+  eventId    String
+  sectionId  String
+  rowNumber  String // "A", "B", "C"
+  seatNumber Int // 1, 2, 3
+  price      Float
+  status     SeatStatus @default(AVAILABLE)
 
-  event       Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  section     Section     @relation(fields: [sectionId], references: [id])
+  // Locking fields for seat hold mechanism
+  heldBy    String? // User ID who is holding
+  heldUntil DateTime? // When the hold expires
+  version   Int       @default(0) // For optimistic locking
+
+  event       Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  section     Section      @relation(fields: [sectionId], references: [id])
   bookingItem BookingItem?
 
   @@unique([eventId, sectionId, rowNumber, seatNumber])
@@ -146,35 +145,35 @@ enum SeatStatus {
   AVAILABLE
   HELD
   BOOKED
-  BLOCKED  // For maintenance or VIP reservations
+  BLOCKED // For maintenance or VIP reservations
 }
 
 // ==================== BOOKING MANAGEMENT ====================
 
 model Booking {
-  id              String        @id @default(uuid())
-  bookingNumber   String        @unique @default(uuid())
-  userId          String
-  eventId         String
-  status          BookingStatus @default(PENDING)
-  totalAmount     Float
-  taxAmount       Float         @default(0)
-  discountAmount  Float         @default(0)
-  finalAmount     Float
-  paymentId       String?
-  paymentMethod   String?
-  expiresAt       DateTime?     // For pending bookings
-  confirmedAt     DateTime?
-  cancelledAt     DateTime?
+  id                 String        @id @default(uuid())
+  bookingNumber      String        @unique @default(uuid())
+  userId             String
+  eventId            String
+  status             BookingStatus @default(PENDING)
+  totalAmount        Float
+  taxAmount          Float         @default(0)
+  discountAmount     Float         @default(0)
+  finalAmount        Float
+  paymentId          String?
+  paymentMethod      String?
+  expiresAt          DateTime? // For pending bookings
+  confirmedAt        DateTime?
+  cancelledAt        DateTime?
   cancellationReason String?
-  version         Int           @default(0) // For optimistic locking
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  version            Int           @default(0) // For optimistic locking
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 
-  user            User          @relation(fields: [userId], references: [id])
-  event           Event         @relation(fields: [eventId], references: [id])
-  items           BookingItem[]
-  payment         Payment?
+  user    User          @relation(fields: [userId], references: [id])
+  event   Event         @relation(fields: [eventId], references: [id])
+  items   BookingItem[]
+  payment Payment?
 
   @@index([userId])
   @@index([eventId])
@@ -191,13 +190,13 @@ enum BookingStatus {
 }
 
 model BookingItem {
-  id        String  @id @default(uuid())
+  id        String @id @default(uuid())
   bookingId String
-  seatId    String  @unique
+  seatId    String @unique
   price     Float
 
-  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  seat      Seat    @relation(fields: [seatId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  seat    Seat    @relation(fields: [seatId], references: [id])
 
   @@index([bookingId])
 }
@@ -205,22 +204,22 @@ model BookingItem {
 // ==================== PAYMENT MANAGEMENT ====================
 
 model Payment {
-  id              String        @id @default(uuid())
-  bookingId       String        @unique
-  gatewayOrderId  String?       // Razorpay order_id / Stripe payment_intent
-  gatewayPaymentId String?      // Razorpay payment_id / Stripe charge_id
-  amount          Float
-  currency        String        @default("INR")
-  status          PaymentStatus @default(PENDING)
-  method          String?       // "card", "upi", "netbanking"
-  failureReason   String?
-  refundId        String?
-  refundAmount    Float?
-  refundedAt      DateTime?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id               String        @id @default(uuid())
+  bookingId        String        @unique
+  gatewayOrderId   String? // Razorpay order_id / Stripe payment_intent
+  gatewayPaymentId String? // Razorpay payment_id / Stripe charge_id
+  amount           Float
+  currency         String        @default("INR")
+  status           PaymentStatus @default(PENDING)
+  method           String? // "card", "upi", "netbanking"
+  failureReason    String?
+  refundId         String?
+  refundAmount     Float?
+  refundedAt       DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
-  booking         Booking       @relation(fields: [bookingId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id])
 
   @@index([gatewayOrderId])
   @@index([status])
@@ -241,12 +240,12 @@ model Review {
   id        String   @id @default(uuid())
   userId    String
   eventId   String
-  rating    Int      // 1-5
+  rating    Int // 1-5
   comment   String?
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id])
-  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@unique([userId, eventId])
 }
@@ -259,11 +258,11 @@ model Notification {
   type      NotificationType
   title     String
   message   String
-  data      Json?            // Additional data like bookingId, eventId
+  data      Json? // Additional data like bookingId, eventId
   isRead    Boolean          @default(false)
   createdAt DateTime         @default(now())
 
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead])
 }
@@ -281,19 +280,19 @@ enum NotificationType {
 // ==================== COUPONS & DISCOUNTS ====================
 
 model Coupon {
-  id              String       @id @default(uuid())
-  code            String       @unique
-  description     String?
-  discountType    DiscountType
-  discountValue   Float        // Percentage or fixed amount
-  minPurchase     Float?
-  maxDiscount     Float?
-  usageLimit      Int?
-  usedCount       Int          @default(0)
-  validFrom       DateTime
-  validUntil      DateTime
-  isActive        Boolean      @default(true)
-  createdAt       DateTime     @default(now())
+  id            String       @id @default(uuid())
+  code          String       @unique
+  description   String?
+  discountType  DiscountType
+  discountValue Float // Percentage or fixed amount
+  minPurchase   Float?
+  maxDiscount   Float?
+  usageLimit    Int?
+  usedCount     Int          @default(0)
+  validFrom     DateTime
+  validUntil    DateTime
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
 
   @@index([code, isActive])
 }

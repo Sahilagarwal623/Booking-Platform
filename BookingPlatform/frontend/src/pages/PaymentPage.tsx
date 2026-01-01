@@ -36,6 +36,7 @@ export default function PaymentPage() {
     const [timeLeft, setTimeLeft] = useState<number>(0);
     const [isLeaving, setIsLeaving] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const booking = state?.booking;
     const event = state?.event;
@@ -117,8 +118,7 @@ export default function PaymentPage() {
                 paymentMethod: 'card'
             });
 
-            alert('Payment successful! Your booking is confirmed.');
-            navigate('/my-bookings');
+            setShowSuccessModal(true);
         } catch (err: any) {
             console.error('Payment failed:', err);
             const message = err.response?.data?.message || 'Payment failed. Please try again.';
@@ -311,6 +311,39 @@ export default function PaymentPage() {
                                     Yes, Cancel
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+                    {/* Backdrop */}
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+
+                    {/* Modal Content */}
+                    <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800 transform transition-all scale-100">
+                        <div className="text-center">
+                            <div className="w-20 h-20 bg-green-100 dark:bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <svg className="w-10 h-10 text-green-500 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Payment Successful!</h3>
+                            <p className="text-slate-600 dark:text-slate-400 mb-2">
+                                Your booking has been confirmed.
+                            </p>
+                            <p className="text-sm text-slate-500 dark:text-slate-500 mb-8">
+                                Booking #{booking.bookingNumber}
+                            </p>
+
+                            <button
+                                onClick={() => navigate('/my-bookings')}
+                                className="w-full px-6 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-lg transition-colors shadow-lg shadow-indigo-500/25"
+                            >
+                                View My Bookings
+                            </button>
                         </div>
                     </div>
                 </div>

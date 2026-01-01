@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { BookingService, SeatLockService } from '../services';
 import { authenticate } from '../middleware';
-import { BookingStatus } from '../../generated/prisma';
+import { BookingStatus } from '@prisma/client';
 
 const router = Router();
 

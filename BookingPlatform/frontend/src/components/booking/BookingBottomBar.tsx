@@ -31,7 +31,7 @@ export default function BookingBottomBar({
                     onClick={onProceed}
                     disabled={selectedSeatsCount === 0 || loading}
                     className={`
-                        py-3 px-8 rounded-lg font-bold text-white shadow-lg transition-all duration-200
+                        cursor-pointer py-3 px-8 rounded-lg font-bold text-white shadow-lg transition-all duration-200
                         ${selectedSeatsCount === 0 || loading
                             ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed shadow-none'
                             : 'bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 shadow-indigo-500/25 transform hover:-translate-y-0.5'

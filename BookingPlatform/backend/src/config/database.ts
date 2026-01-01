@@ -1,13 +1,16 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { PrismaClient } from '../../generated/prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 
 // Create PostgreSQL connection pool
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: process.env.DIRECT_URL,
+    max: 20, // Increase max connections (default is 10)
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000, // Wait 10s for a connection
 });
 
 // Create Prisma adapter

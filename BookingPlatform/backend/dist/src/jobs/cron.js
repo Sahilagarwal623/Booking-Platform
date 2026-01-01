@@ -57,7 +57,11 @@ function initializeCronJobs() {
      * Release expired seat holds
      * Runs every minute
      */
+    let isReleasingHolds = false;
     node_cron_1.default.schedule('* * * * *', () => __awaiter(this, void 0, void 0, function* () {
+        if (isReleasingHolds)
+            return;
+        isReleasingHolds = true;
         try {
             const result = yield services_1.SeatLockService.releaseExpiredHolds();
             if (result.released > 0) {
@@ -67,12 +71,19 @@ function initializeCronJobs() {
         catch (error) {
             console.error('[cron] Error releasing expired holds:', error);
         }
+        finally {
+            isReleasingHolds = false;
+        }
     }));
     /**
      * Expire pending bookings
      * Runs every minute
      */
+    let isExpiringBookings = false;
     node_cron_1.default.schedule('* * * * *', () => __awaiter(this, void 0, void 0, function* () {
+        if (isExpiringBookings)
+            return;
+        isExpiringBookings = true;
         try {
             const result = yield services_1.BookingService.expirePendingBookings();
             if (result.expired > 0) {
@@ -81,6 +92,9 @@ function initializeCronJobs() {
         }
         catch (error) {
             console.error('[cron] Error expiring pending bookings:', error);
+        }
+        finally {
+            isExpiringBookings = false;
         }
     }));
     /**
@@ -104,6 +118,21 @@ function initializeCronJobs() {
         }
         catch (error) {
             console.error('[cron] Error cleaning notifications:', error);
+        }
+    }));
+    /**
+     * Keep-alive ping
+     * Runs every 14 minutes to prevent cold starts (Render sleeps after 15 mins)
+     */
+    node_cron_1.default.schedule('*/14 * * * *', () => __awaiter(this, void 0, void 0, function* () {
+        try {
+            const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000';
+            console.log(`[cron] Pinging ${backendUrl} to keep alive.`);
+            const response = yield fetch(backendUrl);
+            console.log(`[cron] Ping successful: ${response.status}`);
+        }
+        catch (error) {
+            console.error('[cron] Ping failed:', error);
         }
     }));
     console.log('[cron] Background jobs initialized successfully');

@@ -2,7 +2,7 @@ import { prisma } from '../config/database';
 import { config } from '../config';
 import { ApiError } from '../middleware';
 import { SeatLockService } from './seatLock.service';
-import { BookingStatus, SeatStatus, Prisma } from '../../generated/prisma';
+import { BookingStatus, SeatStatus, Prisma } from '@prisma/client';
 
 interface CreateBookingInput {
     userId: string;
@@ -221,7 +221,7 @@ export class BookingService {
                 });
             },
             {
-                isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+                maxWait: 5000,
                 timeout: 15000,
             }
         );
@@ -410,44 +410,40 @@ export class BookingService {
      * Expire pending bookings that have passed their expiry time
      */
     static async expirePendingBookings(): Promise<{ expired: number }> {
-        const result = await prisma.$transaction(async (tx) => {
-            // Find expired pending bookings
-            const expiredBookings = await tx.booking.findMany({
-                where: {
-                    status: BookingStatus.PENDING,
-                    expiresAt: { lt: new Date() },
-                },
-                include: {
-                    items: true,
-                },
-            });
-
-            if (expiredBookings.length === 0) {
-                return 0;
-            }
-
-            const bookingIds = expiredBookings.map((b) => b.id);
-
-            // Step 1: Delete booking items first (to free up the seatId unique constraint)
-            await tx.bookingItem.deleteMany({
-                where: {
-                    bookingId: { in: bookingIds },
-                },
-            });
-
-            // Step 2: Update booking status to EXPIRED
-            await tx.booking.updateMany({
-                where: {
-                    id: { in: bookingIds },
-                },
-                data: {
-                    status: BookingStatus.EXPIRED,
-                },
-            });
-
-            return expiredBookings.length;
+        // Find expired pending bookings
+        const expiredBookings = await prisma.booking.findMany({
+            where: {
+                status: BookingStatus.PENDING,
+                expiresAt: { lt: new Date() },
+            },
+            include: {
+                items: true,
+            },
         });
 
-        return { expired: result };
+        if (expiredBookings.length === 0) {
+            return { expired: 0 };
+        }
+
+        const bookingIds = expiredBookings.map((b) => b.id);
+
+        // Delete booking items first (to free up the seatId unique constraint)
+        await prisma.bookingItem.deleteMany({
+            where: {
+                bookingId: { in: bookingIds },
+            },
+        });
+
+        // Update booking status to EXPIRED
+        await prisma.booking.updateMany({
+            where: {
+                id: { in: bookingIds },
+            },
+            data: {
+                status: BookingStatus.EXPIRED,
+            },
+        });
+
+        return { expired: expiredBookings.length };
     }
 }

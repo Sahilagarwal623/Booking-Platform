@@ -1,7 +1,7 @@
 import { prisma } from '../config/database';
 import { config } from '../config';
 import { ApiError } from '../middleware';
-import { SeatStatus, BookingStatus, Prisma, EventStatus } from '../../generated/prisma';
+import { SeatStatus, EventStatus } from '@prisma/client';
 
 /**
  * Seat Locking Service
@@ -113,7 +113,7 @@ export class SeatLockService {
                 return { seatIds };
             },
             {
-                isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+                maxWait: 5000, // Wait up to 5s for a connection
                 timeout: 10000, // 10 second timeout
             }
         );
@@ -175,52 +175,53 @@ export class SeatLockService {
      * Release all expired holds (called by cron job)
      */
     static async releaseExpiredHolds(): Promise<{ released: number }> {
-        const result = await prisma.$transaction(async (tx) => {
-            // Find all expired holds
-            const expiredSeats = await tx.seat.findMany({
-                where: {
-                    status: SeatStatus.HELD,
-                    heldUntil: { lt: new Date() },
-                },
-                select: { id: true, eventId: true },
-            });
+        // Find all expired holds (no transaction needed for reads)
+        const expiredSeats = await prisma.seat.findMany({
+            where: {
+                status: SeatStatus.HELD,
+                heldUntil: { lt: new Date() },
+            },
+            select: { id: true, eventId: true },
+        });
 
-            if (expiredSeats.length === 0) {
-                return 0;
-            }
+        if (expiredSeats.length === 0) {
+            return { released: 0 };
+        }
 
-            // Group by event for count updates
-            const eventCounts = new Map<string, number>();
-            expiredSeats.forEach((seat) => {
-                eventCounts.set(seat.eventId, (eventCounts.get(seat.eventId) || 0) + 1);
-            });
+        // Group by event for count updates
+        const eventCounts = new Map<string, number>();
+        expiredSeats.forEach((seat) => {
+            eventCounts.set(seat.eventId, (eventCounts.get(seat.eventId) || 0) + 1);
+        });
 
-            // Release the seats
-            await tx.seat.updateMany({
-                where: {
-                    id: { in: expiredSeats.map((s) => s.id) },
-                },
-                data: {
-                    status: SeatStatus.AVAILABLE,
-                    heldBy: null,
-                    heldUntil: null,
-                },
-            });
+        // Release the seats (atomic operation)
+        const updateResult = await prisma.seat.updateMany({
+            where: {
+                id: { in: expiredSeats.map((s) => s.id) },
+                status: SeatStatus.HELD, // Double-check still held
+            },
+            data: {
+                status: SeatStatus.AVAILABLE,
+                heldBy: null,
+                heldUntil: null,
+            },
+        });
 
-            // Update event available counts
-            for (const [eventId, count] of eventCounts) {
-                await tx.event.update({
+        // Update event available counts (best effort, eventual consistency)
+        for (const [eventId, count] of eventCounts) {
+            try {
+                await prisma.event.update({
                     where: { id: eventId },
                     data: {
                         availableSeats: { increment: count },
                     },
                 });
+            } catch (err) {
+                console.error(`[cron] Failed to update availableSeats for event ${eventId}:`, err);
             }
+        }
 
-            return expiredSeats.length;
-        });
-
-        return { released: result };
+        return { released: updateResult.count };
     }
 
     /**

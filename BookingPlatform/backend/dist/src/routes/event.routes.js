@@ -20,7 +20,7 @@ const router = (0, express_1.Router)();
  */
 router.get('/', middleware_1.optionalAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { category, city, dateFrom, dateTo, minPrice, maxPrice, page = '1', limit = '10', } = req.query;
+        const { category, city, dateFrom, dateTo, minPrice, maxPrice, status, page = '1', limit = '10', } = req.query;
         const filters = {
             category: category,
             city: city,
@@ -28,6 +28,7 @@ router.get('/', middleware_1.optionalAuth, (req, res, next) => __awaiter(void 0,
             dateTo: dateTo ? new Date(dateTo) : undefined,
             minPrice: minPrice ? parseFloat(minPrice) : undefined,
             maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
+            status: status, // 'all', 'DRAFT', 'PUBLISHED', etc.
         };
         const result = yield services_1.EventService.getEvents(filters, parseInt(page), parseInt(limit));
         res.json({

@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../config/database';
 import { config } from '../config';
 import { ApiError } from '../middleware';
-import { UserRole } from '../../generated/prisma';
+import { UserRole } from '@prisma/client';
 
 interface RegisterInput {
     email: string;

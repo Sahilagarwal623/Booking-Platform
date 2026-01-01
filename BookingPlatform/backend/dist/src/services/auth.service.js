@@ -18,7 +18,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const database_1 = require("../config/database");
 const config_1 = require("../config");
 const middleware_1 = require("../middleware");
-const prisma_1 = require("../../generated/prisma");
+const client_1 = require("@prisma/client");
 /**
  * Authentication Service
  * Handles user registration, login, and token management
@@ -47,7 +47,7 @@ class AuthService {
                     password: hashedPassword,
                     name,
                     phone,
-                    role: prisma_1.UserRole.USER,
+                    role: client_1.UserRole.USER,
                 },
                 select: {
                     id: true,

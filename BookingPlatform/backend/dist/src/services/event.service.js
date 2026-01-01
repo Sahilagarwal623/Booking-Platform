@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EventService = void 0;
 const database_1 = require("../config/database");
 const middleware_1 = require("../middleware");
-const client_1 = require("../../generated/prisma/client");
+const client_1 = require("@prisma/client");
 /**
  * Event Service
  * Handles event CRUD and seat generation
@@ -122,9 +122,15 @@ class EventService {
     static getEvents(filters_1) {
         return __awaiter(this, arguments, void 0, function* (filters, page = 1, limit = 10) {
             const skip = (page - 1) * limit;
-            const where = {
-                status: filters.status || client_1.EventStatus.PUBLISHED,
-            };
+            const where = {};
+            // Handle status filter: 'all' returns all statuses, otherwise filter by specific status
+            if (filters.status && filters.status !== 'all') {
+                where.status = filters.status;
+            }
+            else if (!filters.status) {
+                // Default to PUBLISHED for public listing
+                where.status = client_1.EventStatus.PUBLISHED;
+            }
             if (filters.category) {
                 where.category = filters.category;
             }
@@ -154,10 +160,9 @@ class EventService {
                     where,
                     include: {
                         venue: {
-                            select: {
-                                name: true,
-                                city: true,
-                            },
+                            include: {
+                                sections: true
+                            }
                         },
                     },
                     orderBy: { eventDate: 'asc' },

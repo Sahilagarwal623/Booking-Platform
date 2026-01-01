@@ -11,7 +11,10 @@ export function initializeCronJobs() {
      * Release expired seat holds
      * Runs every minute
      */
+    let isReleasingHolds = false;
     cron.schedule('* * * * *', async () => {
+        if (isReleasingHolds) return;
+        isReleasingHolds = true;
         try {
             const result = await SeatLockService.releaseExpiredHolds();
             if (result.released > 0) {
@@ -19,6 +22,8 @@ export function initializeCronJobs() {
             }
         } catch (error) {
             console.error('[cron] Error releasing expired holds:', error);
+        } finally {
+            isReleasingHolds = false;
         }
     });
 
@@ -26,7 +31,10 @@ export function initializeCronJobs() {
      * Expire pending bookings
      * Runs every minute
      */
+    let isExpiringBookings = false;
     cron.schedule('* * * * *', async () => {
+        if (isExpiringBookings) return;
+        isExpiringBookings = true;
         try {
             const result = await BookingService.expirePendingBookings();
             if (result.expired > 0) {
@@ -34,6 +42,8 @@ export function initializeCronJobs() {
             }
         } catch (error) {
             console.error('[cron] Error expiring pending bookings:', error);
+        } finally {
+            isExpiringBookings = false;
         }
     });
 

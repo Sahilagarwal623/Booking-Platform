@@ -24,6 +24,8 @@ router.post('/hold-seats', (req, res, next) => __awaiter(void 0, void 0, void 0,
     try {
         const userId = req.user.id;
         const { eventId, seatIds } = req.body;
+        console.log("eventId: ", eventId);
+        console.log("seatIds: ", seatIds);
         if (!eventId || !seatIds || !Array.isArray(seatIds) || seatIds.length === 0) {
             res.status(400).json({
                 success: false,
@@ -186,10 +188,11 @@ router.post('/:id/confirm', (req, res, next) => __awaiter(void 0, void 0, void 0
  * @access  Private
  */
 router.post('/:id/cancel', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const userId = req.user.id;
         const bookingId = req.params.id;
-        const { reason } = req.body;
+        const reason = (_a = req.body) === null || _a === void 0 ? void 0 : _a.reason;
         if (!bookingId) {
             res.status(400).json({
                 success: false,

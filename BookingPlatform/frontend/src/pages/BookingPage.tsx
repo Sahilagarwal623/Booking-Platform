@@ -23,6 +23,7 @@ export default function BookingPage() {
     const [event, setEvent] = useState<Event | null>(null);
     const [seatData, setSeatData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [processingPayment, setProcessingPayment] = useState(false);
     const [error, setError] = useState('');
     const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
 
@@ -104,7 +105,7 @@ export default function BookingPage() {
         }
 
         try {
-            setLoading(true);
+            setProcessingPayment(true);
             const seatIds = selectedSeats.map(s => s.id);
 
             // Step 1: Hold seats (locking happens here, not on click)
@@ -132,16 +133,18 @@ export default function BookingPage() {
             setSeatData(seatsRes.data);
             setSelectedSeats([]); // Clear selection on failure
         } finally {
-            setLoading(false);
+            setProcessingPayment(false);
         }
     };
 
-    if (loading) {
+    if (loading || processingPayment) {
         return (
             <div className="min-h-screen pt-24 pb-12 px-4 flex items-center justify-center">
                 <div className="text-center">
                     <div className="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-600 dark:border-t-indigo-500 rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-slate-500 dark:text-slate-400">Loading seat map...</p>
+                    <p className="text-slate-500 dark:text-slate-400">
+                        {processingPayment ? 'Preparing your booking...' : 'Loading seat map...'}
+                    </p>
                 </div>
             </div>
         );
