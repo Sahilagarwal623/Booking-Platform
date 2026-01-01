@@ -1,12 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
 import { UserService, type UserProfile } from '../api/user.api';
 
 export default function Profile() {
-    const { user } = useAuth();
-    // Actually, AuthContext usually persists user in local storage. If we update the backend, we should technically update the frontend context too if it stores name/phone.
-    // Let's check AuthContext content from previous view... I'll assume for now I can just update the local form data.
-
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
