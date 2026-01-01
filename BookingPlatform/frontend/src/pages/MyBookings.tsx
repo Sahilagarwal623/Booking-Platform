@@ -7,6 +7,8 @@ export default function MyBookings() {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [cancelModal, setCancelModal] = useState<{ bookingId: string; eventTitle: string } | null>(null);
+    const [cancelling, setCancelling] = useState(false);
 
     useEffect(() => {
         const fetchBookings = async () => {
@@ -22,16 +24,21 @@ export default function MyBookings() {
         fetchBookings();
     }, []);
 
-    const handleCancel = async (bookingId: string) => {
-        if (!confirm('Are you sure you want to cancel this booking?')) return;
+    const handleCancel = async () => {
+        if (!cancelModal) return;
 
         try {
-            await BookingService.cancelBooking(bookingId);
+            setCancelling(true);
+            await BookingService.cancelBooking(cancelModal.bookingId);
             setBookings(bookings.map(b =>
-                b.id === bookingId ? { ...b, status: 'CANCELLED' as const } : b
+                b.id === cancelModal.bookingId ? { ...b, status: 'CANCELLED' as const } : b
             ));
+            setCancelModal(null);
         } catch (err) {
-            alert('Failed to cancel booking');
+            setCancelModal(null);
+            // Show error inline or via toast
+        } finally {
+            setCancelling(false);
         }
     };
 
@@ -176,7 +183,10 @@ export default function MyBookings() {
                                         </Link>
                                         {booking.status === 'CONFIRMED' && (
                                             <button
-                                                onClick={() => handleCancel(booking.id)}
+                                                onClick={() => setCancelModal({
+                                                    bookingId: booking.id,
+                                                    eventTitle: booking.event?.title || 'this booking'
+                                                })}
                                                 className="px-4 py-2 text-sm font-medium text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 border border-red-200 dark:border-red-500/30 hover:border-red-300 dark:hover:border-red-500/50 rounded-lg transition-colors"
                                             >
                                                 Cancel
@@ -196,6 +206,56 @@ export default function MyBookings() {
                             </p>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Cancel Confirmation Modal */}
+            {cancelModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                        onClick={() => !cancelling && setCancelModal(null)}
+                    ></div>
+
+                    {/* Modal Content */}
+                    <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800">
+                        <div className="text-center">
+                            <div className="w-16 h-16 bg-red-100 dark:bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg className="w-8 h-8 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Cancel Booking?</h3>
+                            <p className="text-slate-600 dark:text-slate-400 mb-6">
+                                Are you sure you want to cancel your booking for <span className="font-medium text-slate-900 dark:text-white">{cancelModal.eventTitle}</span>? This action cannot be undone.
+                            </p>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setCancelModal(null)}
+                                    disabled={cancelling}
+                                    className="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
+                                >
+                                    Keep Booking
+                                </button>
+                                <button
+                                    onClick={handleCancel}
+                                    disabled={cancelling}
+                                    className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl font-medium transition-colors shadow-lg shadow-red-500/25 disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    {cancelling ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                            Cancelling...
+                                        </>
+                                    ) : (
+                                        'Yes, Cancel'
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
