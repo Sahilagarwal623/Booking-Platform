@@ -1,27 +1,38 @@
 export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'EXPIRED';
 
-export interface Seat {
+export interface BookingItem {
     id: string;
-    label: string;
-    row: string;
-    number: number;
+    seatId: string;
     price: number;
-    status: 'AVAILABLE' | 'HELD' | 'BOOKED';
+    seat?: {
+        rowNumber: string;
+        seatNumber: number;
+        section?: {
+            name: string;
+        };
+    };
 }
 
 export interface Booking {
     id: string;
+    bookingNumber: string;
     eventId: string;
     event?: {
         id: string;
-        name: string;
-        date: string;
-        venue: { name: string };
+        title: string;
+        eventDate: string;
+        venue?: {
+            name: string;
+            city?: string;
+        };
     };
-    seats: Seat[];
+    items: BookingItem[];
     totalAmount: number;
+    taxAmount?: number;
+    finalAmount?: number;
     status: BookingStatus;
     createdAt: string;
+    expiresAt?: string;
 }
 
 export interface HoldSeatsRequest {
@@ -31,7 +42,7 @@ export interface HoldSeatsRequest {
 
 export interface HoldSeatsResponse {
     bookingId: string;
-    seats: Seat[];
+    seats: { id: string; price: number }[];
     totalAmount: number;
     expiresAt: string;
 }

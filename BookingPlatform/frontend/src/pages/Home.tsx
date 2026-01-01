@@ -28,20 +28,20 @@ export default function Home() {
             {/* Hero Section */}
             <section className="text-center py-16 md:py-24">
                 <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                    <span className="bg-linear-to-r from-indigo-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
+                    <span className="bg-linear-to-r from-indigo-600 via-violet-600 to-purple-600 dark:from-indigo-400 dark:via-violet-400 dark:to-purple-400 bg-clip-text text-transparent">
                         Discover & Book
                     </span>
                     <br />
-                    <span className="text-white">Amazing Events</span>
+                    <span className="text-slate-900 dark:text-white">Amazing Events</span>
                 </h1>
-                <p className="text-xl text-slate-400 max-w-2xl mx-auto mb-8">
+                <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-8">
                     Find and book tickets for concerts, sports, theater, and more.
                     Your next unforgettable experience is just a click away.
                 </p>
 
                 {isAuthenticated ? (
-                    <p className="text-lg text-slate-300">
-                        Welcome back, <span className="text-indigo-400 font-medium">{user?.name}</span>! Ready to explore?
+                    <p className="text-lg text-slate-700 dark:text-slate-300">
+                        Welcome back, <span className="text-indigo-600 dark:text-indigo-400 font-medium">{user?.name}</span>! Ready to explore?
                     </p>
                 ) : (
                     <div className="flex items-center justify-center gap-4">
@@ -53,7 +53,7 @@ export default function Home() {
                         </Link>
                         <Link
                             to="/login"
-                            className="px-8 py-3 border border-slate-700 hover:border-slate-600 hover:bg-slate-800 text-white font-medium rounded-lg"
+                            className="px-8 py-3 border border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-white font-medium rounded-lg transition-all"
                         >
                             Login
                         </Link>
@@ -64,8 +64,8 @@ export default function Home() {
             {/* Featured Events */}
             <section>
                 <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-2xl md:text-3xl font-bold text-white">Featured Events</h2>
-                    <Link to="/events" className="text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1">
+                    <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">Featured Events</h2>
+                    <Link to="/events" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 font-medium flex items-center gap-1 transition-colors">
                         View All
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -76,12 +76,12 @@ export default function Home() {
                 {loading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {[1, 2, 3].map((i) => (
-                            <div key={i} className="bg-slate-800/50 rounded-xl h-72 animate-pulse" />
+                            <div key={i} className="bg-slate-100 dark:bg-slate-800/50 rounded-xl h-72 animate-pulse" />
                         ))}
                     </div>
                 ) : featuredEvents.length === 0 ? (
-                    <div className="text-center py-12 bg-slate-900/50 border border-slate-800 rounded-xl">
-                        <p className="text-slate-400">No events available at the moment</p>
+                    <div className="text-center py-12 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm dark:shadow-none">
+                        <p className="text-slate-500 dark:text-slate-400">No events available at the moment</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -89,11 +89,11 @@ export default function Home() {
                             <Link
                                 key={event.id}
                                 to={`/events/${event.id}`}
-                                className="group bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 hover:bg-slate-900/80 transition-all duration-300"
+                                className="group bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-lg dark:hover:bg-slate-900/80 transition-all duration-300"
                             >
                                 {/* Image placeholder */}
                                 {/* Image */}
-                                <div className="h-40 bg-linear-to-br from-indigo-600/20 to-violet-600/20 flex items-center justify-center overflow-hidden">
+                                <div className="h-40 bg-linear-to-br from-indigo-100 to-violet-100 dark:from-indigo-600/20 dark:to-violet-600/20 flex items-center justify-center overflow-hidden">
                                     {event.imageUrl ? (
                                         <img
                                             src={event.imageUrl}
@@ -101,24 +101,24 @@ export default function Home() {
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                         />
                                     ) : (
-                                        <svg className="w-12 h-12 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-12 h-12 text-slate-400 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                                         </svg>
                                     )}
                                 </div>
                                 {/* Content */}
                                 <div className="p-5">
-                                    <h3 className="text-lg font-semibold text-white group-hover:text-indigo-400 transition-colors mb-2">
+                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors mb-2">
                                         {event.name}
                                     </h3>
-                                    <p className="text-slate-400 text-sm mb-3">
+                                    <p className="text-slate-500 dark:text-slate-400 text-sm mb-3">
                                         {new Date(event.eventDate).toLocaleDateString('en-IN', {
                                             weekday: 'short',
                                             day: 'numeric',
                                             month: 'short'
                                         })}
                                     </p>
-                                    <p className="text-indigo-400 font-semibold">
+                                    <p className="text-indigo-600 dark:text-indigo-400 font-semibold">
                                         From ₹{(() => {
                                             const multipliers = event.venue?.sections?.map(s => s.priceMultiplier) || [];
                                             return multipliers.length ? event.basePrice * Math.min(...multipliers) : event.basePrice;

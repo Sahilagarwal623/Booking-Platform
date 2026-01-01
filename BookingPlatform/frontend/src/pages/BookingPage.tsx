@@ -140,8 +140,8 @@ export default function BookingPage() {
         return (
             <div className="min-h-screen pt-24 pb-12 px-4 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-slate-400">Loading seat map...</p>
+                    <div className="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-600 dark:border-t-indigo-500 rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-slate-500 dark:text-slate-400">Loading seat map...</p>
                 </div>
             </div>
         );
@@ -151,16 +151,16 @@ export default function BookingPage() {
         return (
             <div className="min-h-screen pt-24 pb-12 px-4 flex items-center justify-center">
                 <div className="text-center max-w-md">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-red-500/10 rounded-full mb-4">
-                        <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-500/10 rounded-full mb-4">
+                        <svg className="w-8 h-8 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     </div>
-                    <h2 className="text-xl font-bold text-white mb-2">Something went wrong</h2>
-                    <p className="text-slate-400 mb-6">{error || 'Event data not found'}</p>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Something went wrong</h2>
+                    <p className="text-slate-600 dark:text-slate-400 mb-6">{error || 'Event data not found'}</p>
                     <button
                         onClick={() => navigate(`/events/${id}`)}
-                        className="text-indigo-400 hover:text-indigo-300 font-medium"
+                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 font-medium transition-colors"
                     >
                         Return to Event Details
                     </button>
@@ -175,43 +175,43 @@ export default function BookingPage() {
         <div className="min-h-screen pt-24 pb-32 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="mb-8 flex justify-between items-end">
+                <div className="mb-8 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
                     <div>
                         <button
                             onClick={() => navigate(`/events/${id}`)}
-                            className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 mb-4"
+                            className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-2 mb-4"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                             </svg>
                             Back to Event
                         </button>
-                        <h1 className="text-3xl font-bold text-white mb-2">Select Seats</h1>
-                        <p className="text-slate-400">{event.title || event.name} • {event.venue.name}</p>
+                        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Select Seats</h1>
+                        <p className="text-slate-600 dark:text-slate-400">{event.title || event.name} • {event.venue.name}</p>
                     </div>
 
                     {/* Legend */}
-                    <div className="flex gap-6 items-center bg-slate-900/50 px-6 py-3 rounded-xl border border-slate-800">
+                    <div className="flex gap-6 items-center bg-white dark:bg-slate-900/50 px-6 py-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
                         <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded bg-slate-600"></div>
-                            <span className="text-sm text-slate-300">Available</span>
+                            <div className="w-4 h-4 rounded bg-slate-200 dark:bg-slate-600 border border-slate-300 dark:border-transparent"></div>
+                            <span className="text-sm text-slate-600 dark:text-slate-300">Available</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded bg-indigo-500 shadow-lg shadow-indigo-500/50"></div>
-                            <span className="text-sm text-slate-300">Selected</span>
+                            <div className="w-4 h-4 rounded bg-indigo-600 dark:bg-indigo-500 shadow-lg shadow-indigo-500/50"></div>
+                            <span className="text-sm text-slate-600 dark:text-slate-300">Selected</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded bg-slate-700 opacity-50"></div>
-                            <span className="text-sm text-slate-500">Booked</span>
+                            <div className="w-4 h-4 rounded bg-slate-300 dark:bg-slate-700 opacity-50 cursor-not-allowed"></div>
+                            <span className="text-sm text-slate-400 dark:text-slate-500">Booked</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Main Stage/Screen Indicator */}
                 <div className="mb-12 relative">
-                    <div className="w-3/4 mx-auto h-2 bg-linear-to-r from-transparent via-indigo-500/50 to-transparent blur-sm rounded-full"></div>
+                    <div className="w-3/4 mx-auto h-2 bg-linear-to-r from-transparent via-indigo-500/20 dark:via-indigo-500/50 to-transparent blur-sm rounded-full"></div>
                     <div className="w-3/4 mx-auto h-1 bg-linear-to-r from-transparent via-indigo-400 to-transparent rounded-full mt-[-6px]"></div>
-                    <p className="text-center text-indigo-400/50 text-sm font-medium tracking-[0.2em] mt-4 uppercase">Stage / Screen</p>
+                    <p className="text-center text-indigo-500 dark:text-indigo-400/50 text-sm font-medium tracking-[0.2em] mt-4 uppercase">Stage / Screen</p>
 
                     {/* Perspective gradient for depth */}
                     <div className="absolute top-full left-0 right-0 h-32 bg-linear-to-b from-indigo-500/5 via-transparent to-transparent -z-10 pointer-events-none"></div>

@@ -35,6 +35,7 @@ export default function PaymentPage() {
     const [loading, setLoading] = useState(false);
     const [timeLeft, setTimeLeft] = useState<number>(0);
     const [isLeaving, setIsLeaving] = useState(false);
+    const [showCancelModal, setShowCancelModal] = useState(false);
 
     const booking = state?.booking;
     const event = state?.event;
@@ -64,37 +65,21 @@ export default function PaymentPage() {
     // Handle back navigation warning
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-            // Modern browsers only require preventDefault()
-            // The returnValue is deprecated but still needed for some older browsers
             e.preventDefault();
         };
 
         // Handle browser back button
         const handlePopState = () => {
-            const confirmLeave = window.confirm(
-                'If you go back, your selected seats will be released and might not be available to you. Are you sure you want to leave?'
-            );
-
-            if (confirmLeave) {
-                // Set leaving flag to show loading instead of error
-                setIsLeaving(true);
-
-                // Release seats and navigate to events
-                if (selectedSeats.length > 0) {
-                    BookingService.releaseSeats(selectedSeats.map(s => s.id))
-                        .catch(err => console.error('Failed to release seats:', err));
-                }
-
-                // Navigate to events page (not -1 which causes issues)
-                navigate('/events');
-            } else {
-                // Stay on page - push current state back
-                window.history.pushState(null, '', window.location.href);
-            }
+            // Prevent navigation by pushing the current state back to history
+            // usage of window.history.state ensures we preserve React Router's state wrapper
+            window.history.pushState(window.history.state, '', window.location.href);
+            // Show custom confirmation modal
+            setShowCancelModal(true);
         };
 
         // Push initial state to enable popstate detection
-        window.history.pushState(null, '', window.location.href);
+        // We push a duplicate of the current valid state to act as a "guard" entry
+        window.history.pushState(window.history.state, '', window.location.href);
         window.addEventListener('beforeunload', handleBeforeUnload);
         window.addEventListener('popstate', handlePopState);
 
@@ -102,25 +87,21 @@ export default function PaymentPage() {
             window.removeEventListener('beforeunload', handleBeforeUnload);
             window.removeEventListener('popstate', handlePopState);
         };
-    }, [selectedSeats, navigate]);
+    }, []);
 
     // Handle leaving the page via navigation
-    const handleCancel = async () => {
-        const confirmLeave = window.confirm(
-            'If you cancel, your selected seats will be released. Are you sure?'
-        );
-
-        if (confirmLeave) {
-            setIsLeaving(true); // Show loading spinner while canceling
-            try {
-                if (bookingId) {
-                    await BookingService.cancelBooking(bookingId);
-                }
-            } catch (err) {
-                console.error('Failed to cancel booking:', err);
-            } finally {
-                navigate('/events');
+    // Handle leaving the page via navigation
+    const confirmCancelBooking = async () => {
+        setShowCancelModal(false);
+        setIsLeaving(true); // Show loading spinner while canceling
+        try {
+            if (bookingId) {
+                await BookingService.cancelBooking(bookingId);
             }
+        } catch (err) {
+            console.error('Failed to cancel booking:', err);
+        } finally {
+            navigate('/events');
         }
     };
 
@@ -160,8 +141,8 @@ export default function PaymentPage() {
         return (
             <div className="min-h-screen pt-24 pb-12 px-4 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-slate-400">Releasing seats...</p>
+                    <div className="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-600 dark:border-t-indigo-500 rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-slate-500 dark:text-slate-400">Releasing seats...</p>
                 </div>
             </div>
         );
@@ -171,16 +152,16 @@ export default function PaymentPage() {
         return (
             <div className="min-h-screen pt-24 pb-12 px-4 flex items-center justify-center">
                 <div className="text-center max-w-md">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-red-500/10 rounded-full mb-4">
-                        <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-500/10 rounded-full mb-4">
+                        <svg className="w-8 h-8 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     </div>
-                    <h2 className="text-xl font-bold text-white mb-2">Booking Not Found</h2>
-                    <p className="text-slate-400 mb-6">The booking session has expired or is invalid.</p>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Booking Not Found</h2>
+                    <p className="text-slate-600 dark:text-slate-400 mb-6">The booking session has expired or is invalid.</p>
                     <button
                         onClick={() => navigate('/events')}
-                        className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-500 transition"
+                        className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/25"
                     >
                         Browse Events
                     </button>
@@ -196,11 +177,13 @@ export default function PaymentPage() {
             <div className="max-w-2xl mx-auto">
                 {/* Header with Timer */}
                 <div className="mb-8 text-center">
-                    <h1 className="text-3xl font-bold text-white mb-2">Complete Payment</h1>
-                    <p className="text-slate-400">Booking #{booking.bookingNumber}</p>
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Complete Payment</h1>
+                    <p className="text-slate-600 dark:text-slate-400">Booking #{booking.bookingNumber}</p>
 
                     {/* Countdown Timer */}
-                    <div className={`mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full ${timeLeft < 60 ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
+                    <div className={`mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full font-medium ${timeLeft < 60
+                        ? 'bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400'
+                        : 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400'
                         }`}>
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -211,9 +194,9 @@ export default function PaymentPage() {
                 </div>
 
                 {/* Event Info */}
-                <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6 mb-6">
-                    <h2 className="text-lg font-semibold text-white mb-4">{event.title}</h2>
-                    <div className="text-sm text-slate-400 space-y-1">
+                <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 mb-6 shadow-sm dark:shadow-none transition-colors duration-200">
+                    <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">{event.title}</h2>
+                    <div className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
                         <p>📍 {event.venue?.name || 'Venue TBD'}</p>
                         <p>📅 {new Date(event.eventDate).toLocaleDateString('en-IN', {
                             weekday: 'long',
@@ -225,37 +208,37 @@ export default function PaymentPage() {
                 </div>
 
                 {/* Selected Seats */}
-                <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6 mb-6">
-                    <h3 className="text-lg font-semibold text-white mb-4">Selected Seats ({selectedSeats.length})</h3>
+                <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 mb-6 shadow-sm dark:shadow-none transition-colors duration-200">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Selected Seats ({selectedSeats.length})</h3>
                     <div className="space-y-3">
                         {selectedSeats.map(seat => (
-                            <div key={seat.id} className="flex justify-between items-center py-2 border-b border-slate-800 last:border-0">
+                            <div key={seat.id} className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800 last:border-0">
                                 <div>
-                                    <span className="text-white font-medium">
+                                    <span className="text-slate-900 dark:text-white font-medium">
                                         {seat.sectionName} - Row {seat.row} Seat {seat.number}
                                     </span>
                                 </div>
-                                <span className="text-indigo-400 font-medium">₹{seat.price.toFixed(2)}</span>
+                                <span className="text-indigo-600 dark:text-indigo-400 font-medium">₹{seat.price.toFixed(2)}</span>
                             </div>
                         ))}
                     </div>
 
                     {/* Total */}
-                    <div className="mt-4 pt-4 border-t border-slate-700 flex justify-between items-center">
-                        <span className="text-lg font-semibold text-white">Total Amount</span>
-                        <span className="text-2xl font-bold text-indigo-400">₹{totalAmount.toFixed(2)}</span>
+                    <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                        <span className="text-lg font-semibold text-slate-900 dark:text-white">Total Amount</span>
+                        <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">₹{totalAmount.toFixed(2)}</span>
                     </div>
                 </div>
 
                 {/* Warning Notice */}
-                <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-6">
+                <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-xl p-4 mb-6">
                     <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-6 h-6 text-amber-500 dark:text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                         <div>
-                            <p className="text-amber-200 font-medium">Your seats are temporarily reserved</p>
-                            <p className="text-amber-300/70 text-sm mt-1">
+                            <p className="text-amber-800 dark:text-amber-200 font-medium">Your seats are temporarily reserved</p>
+                            <p className="text-amber-600 dark:text-amber-300/70 text-sm mt-1">
                                 Complete payment before the timer expires. If you leave this page, your seats will be released.
                             </p>
                         </div>
@@ -265,16 +248,16 @@ export default function PaymentPage() {
                 {/* Action Buttons */}
                 <div className="flex gap-4">
                     <button
-                        onClick={handleCancel}
+                        onClick={() => setShowCancelModal(true)}
                         disabled={loading}
-                        className="flex-1 px-6 py-4 bg-slate-800 text-white rounded-xl font-medium hover:bg-slate-700 transition disabled:opacity-50"
+                        className="flex-1 px-6 py-4 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-white rounded-xl font-medium hover:bg-slate-300 dark:hover:bg-slate-700 transition disabled:opacity-50"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handlePayment}
                         disabled={loading || timeLeft === 0}
-                        className="flex-1 px-6 py-4 bg-indigo-600 text-white rounded-xl font-bold text-lg hover:bg-indigo-500 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="flex-1 px-6 py-4 bg-indigo-600 text-white rounded-xl font-bold text-lg hover:bg-indigo-500 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/25"
                     >
                         {loading ? (
                             <>
@@ -292,6 +275,47 @@ export default function PaymentPage() {
                     </button>
                 </div>
             </div>
+
+            {/* Custom Cancel Confirmation Modal */}
+            {showCancelModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+                        onClick={() => setShowCancelModal(false)}
+                    ></div>
+
+                    {/* Modal Content */}
+                    <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800 transform transition-all scale-100">
+                        <div className="text-center">
+                            <div className="w-16 h-16 bg-red-100 dark:bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg className="w-8 h-8 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Cancel Booking?</h3>
+                            <p className="text-slate-600 dark:text-slate-400 mb-8">
+                                Are you sure you want to cancel? Your selected seats will be released immediately.
+                            </p>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setShowCancelModal(false)}
+                                    className="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                >
+                                    No, Keep It
+                                </button>
+                                <button
+                                    onClick={confirmCancelBooking}
+                                    className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl font-medium transition-colors shadow-lg shadow-red-500/25"
+                                >
+                                    Yes, Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

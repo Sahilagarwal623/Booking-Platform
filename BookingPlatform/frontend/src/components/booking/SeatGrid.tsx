@@ -43,10 +43,10 @@ export default function SeatGrid({ sections, selectedSeats, onSeatClick }: SeatG
     return (
         <div className="space-y-8">
             {sections.map(section => (
-                <div key={section.sectionId} className="bg-slate-900/50 border border-slate-800 rounded-xl p-8 mb-8">
+                <div key={section.sectionId} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-8 mb-8 shadow-sm dark:shadow-none transition-colors duration-200">
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-lg font-semibold text-white">{section.sectionName}</h3>
-                        <span className="text-slate-400 text-sm">
+                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{section.sectionName}</h3>
+                        <span className="text-slate-500 dark:text-slate-400 text-sm">
                             Base Price x {section.priceMultiplier}
                         </span>
                     </div>
@@ -69,10 +69,10 @@ export default function SeatGrid({ sections, selectedSeats, onSeatClick }: SeatG
                                                     w-8 h-8 rounded-t-lg text-xs font-medium transition-all duration-200
                                                     flex items-center justify-center relative group
                                                     ${isBooked
-                                                        ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                                                        ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed'
                                                         : isSelected
-                                                            ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/50 translate-y-[-2px]'
-                                                            : 'bg-slate-600 text-slate-300 hover:bg-slate-500 hover:text-white'
+                                                            ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-lg shadow-indigo-500/50 translate-y-[-2px]'
+                                                            : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-500 hover:text-slate-900 dark:hover:text-white'
                                                     }
                                                 `}
                                                 title={`Row ${seat.row} Seat ${seat.number} - ₹${seat.price}`}
