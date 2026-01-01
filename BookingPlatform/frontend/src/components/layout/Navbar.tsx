@@ -81,18 +81,30 @@ export default function Navbar() {
                                     <span className="text-slate-500 dark:text-slate-400 text-sm">
                                         {user?.name}
                                     </span>
-                                    {isOrganizer && (
-                                        <span className="px-2 py-0.5 text-xs font-medium bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 rounded-full">
-                                            {user?.role}
-                                        </span>
-                                    )}
+                                    <span className="px-2 py-0.5 text-xs font-medium bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 rounded-full">
+                                        {user?.role}
+                                    </span>
+
                                 </div>
-                                <button
-                                    onClick={handleLogout}
-                                    className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 rounded-lg hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
-                                >
-                                    Logout
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    <Link
+                                        to="/profile"
+                                        className="relative hover:opacity-80 transition-opacity"
+                                        title="Profile"
+                                    >
+                                        <img
+                                            src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(user?.name || 'User')}`}
+                                            alt="Profile"
+                                            className="w-9 h-9 rounded-full bg-indigo-50 dark:bg-slate-800 border-2 border-indigo-200 dark:border-indigo-900"
+                                        />
+                                    </Link>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 rounded-lg hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
                             </>
                         ) : (
                             <>

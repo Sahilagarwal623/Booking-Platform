@@ -31,16 +31,23 @@ export default function EventFilters({ currentFilters, onFilterChange, onClear }
         setLocalFilters(currentFilters);
     }, [currentFilters]);
 
+    const [isApplying, setIsApplying] = useState(false);
+
     const handleChange = (key: string, value: any) => {
         const newFilters = { ...localFilters, [key]: value };
         setLocalFilters(newFilters);
-        // Debounce for text/number inputs could be added here, 
-        // but for now we'll trigger immediately or on blur/enter in a real app.
-        // For simplicity, triggering on change for selects/radio, 
-        // maybe add a "Apply" button or debounce for prices/dates if needed.
-        // Let's trigger directly for category/city, but maybe delay for price typing if we wanted.
-        // For now, consistent behavior:
-        onFilterChange(newFilters);
+    };
+
+    const handleApply = () => {
+        if (isApplying) return;
+
+        setIsApplying(true);
+        onFilterChange(localFilters);
+
+        // Disable button for 2 seconds to prevent spam
+        setTimeout(() => {
+            setIsApplying(false);
+        }, 3000);
     };
 
     return (
@@ -49,7 +56,8 @@ export default function EventFilters({ currentFilters, onFilterChange, onClear }
                 <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Filters</h2>
                 <button
                     onClick={onClear}
-                    className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 font-medium transition-colors"
+                    disabled={isApplying}
+                    className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     Clear All
                 </button>
@@ -63,7 +71,7 @@ export default function EventFilters({ currentFilters, onFilterChange, onClear }
                         <input
                             type="radio"
                             name="category"
-                            checked={!currentFilters.category}
+                            checked={!localFilters.category}
                             onChange={() => handleChange('category', undefined)}
                             className="text-indigo-600 focus:ring-indigo-500 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 transition-colors"
                         />
@@ -75,7 +83,7 @@ export default function EventFilters({ currentFilters, onFilterChange, onClear }
                                 type="radio"
                                 name="category"
                                 value={cat.value}
-                                checked={currentFilters.category === cat.value}
+                                checked={localFilters.category === cat.value}
                                 onChange={() => handleChange('category', cat.value)}
                                 className="text-indigo-600 focus:ring-indigo-500 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 transition-colors"
                             />
@@ -136,6 +144,20 @@ export default function EventFilters({ currentFilters, onFilterChange, onClear }
                     />
                 </div>
             </div>
+
+            {/* Apply Button */}
+            <button
+                onClick={handleApply}
+                disabled={isApplying}
+                className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+            >
+                {isApplying ? (
+                    <>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        Applying...
+                    </>
+                ) : 'Apply Filters'}
+            </button>
         </div>
     );
 }

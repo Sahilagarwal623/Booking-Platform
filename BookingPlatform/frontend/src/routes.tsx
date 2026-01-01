@@ -11,6 +11,7 @@ import OrganizerDashboard from './pages/organizer/OrganizerDashboard';
 import CreateEvent from './pages/organizer/CreateEvent';
 import BookingPage from './pages/BookingPage';
 import PaymentPage from './pages/PaymentPage';
+import Profile from './pages/Profile';
 
 // Protected Route - requires authentication
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -68,6 +69,7 @@ const AppRoutes = () => {
             {/* Protected Routes (any authenticated user) */}
             <Route path="/my-bookings" element={<ProtectedRoute><MyBookings /></ProtectedRoute>} />
             <Route path="/bookings/:bookingId/payment" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
             {/* Organizer Routes */}
             <Route path="/organizer" element={<OrganizerRoute><OrganizerDashboard /></OrganizerRoute>} />

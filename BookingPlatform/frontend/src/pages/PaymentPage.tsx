@@ -90,7 +90,6 @@ export default function PaymentPage() {
     }, []);
 
     // Handle leaving the page via navigation
-    // Handle leaving the page via navigation
     const confirmCancelBooking = async () => {
         setShowCancelModal(false);
         setIsLeaving(true); // Show loading spinner while canceling
