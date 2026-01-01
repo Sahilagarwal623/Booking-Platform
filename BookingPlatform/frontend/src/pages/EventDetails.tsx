@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { EventService } from '../api/event.api';
 import type { Event } from '../types/event.types';
+import { useAuth } from '../context/AuthContext';
 
 export default function EventDetails() {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const { user } = useAuth();
     const [event, setEvent] = useState<Event | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -77,6 +80,24 @@ export default function EventDetails() {
                 Back to Events
             </Link>
 
+            {/* Banner Image */}
+            <div className="relative w-full h-64 md:h-96 rounded-xl overflow-hidden mb-8 group">
+                {event.bannerUrl || event.imageUrl ? (
+                    <img
+                        src={event.bannerUrl || event.imageUrl}
+                        alt={event.title || event.name}
+                        className="w-full h-full object-cover"
+                    />
+                ) : (
+                    <div className="w-full h-full bg-linear-to-br from-indigo-900/50 to-purple-900/50 flex items-center justify-center">
+                        <svg className="w-24 h-24 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                )}
+                <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-transparent to-transparent opacity-60" />
+            </div>
+
             {/* Header */}
             <div>
                 {event.category && (
@@ -84,7 +105,7 @@ export default function EventDetails() {
                         {event.category}
                     </span>
                 )}
-                <h1 className="text-3xl md:text-4xl font-bold text-white">{event.name}</h1>
+                <h1 className="text-3xl md:text-4xl font-bold text-white">{event.title || event.name}</h1>
             </div>
 
             {/* Main Content */}
@@ -110,7 +131,7 @@ export default function EventDetails() {
                                 <div>
                                     <p className="text-slate-500 text-sm">Date</p>
                                     <p className="text-white font-medium">
-                                        {new Date(event.date).toLocaleDateString('en-IN', {
+                                        {new Date(event.eventDate).toLocaleDateString('en-IN', {
                                             weekday: 'long',
                                             day: 'numeric',
                                             month: 'long',
@@ -126,8 +147,12 @@ export default function EventDetails() {
                                     </svg>
                                 </div>
                                 <div>
-                                    <p className="text-slate-500 text-sm">Time</p>
-                                    <p className="text-white font-medium">{event.time || 'TBD'}</p>
+                                    <p className="text-white font-medium">
+                                        {event.gateOpenTime
+                                            ? new Date(event.gateOpenTime).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+                                            : new Date(event.eventDate).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+                                        }
+                                    </p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
@@ -161,17 +186,23 @@ export default function EventDetails() {
                                     {event.availableSeats} / {event.totalSeats}
                                 </span>
                             </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-slate-400">Price Range</span>
-                                <span className="text-indigo-400 font-semibold text-lg">
-                                    ₹{event.minPrice} - ₹{event.maxPrice}
-                                </span>
-                            </div>
+
                         </div>
 
-                        <button className="w-full py-3 px-4 bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-lg shadow-lg shadow-indigo-500/25 transition-all duration-200">
-                            Book Now
-                        </button>
+                        {user?.role !== 'ORGANIZER' && (
+                            <button
+                                onClick={() => {
+                                    if (!user) {
+                                        navigate('/login', { state: { from: `/events/${id}` } });
+                                        return;
+                                    }
+                                    navigate(`/events/${id}/book`);
+                                }}
+                                className="cursor-pointer w-full py-3 px-4 bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-lg shadow-lg shadow-indigo-500/25 transition-all duration-200"
+                            >
+                                Book Now
+                            </button>
+                        )}
 
                         <p className="text-slate-500 text-xs text-center mt-4">
                             Secure checkout • Instant confirmation

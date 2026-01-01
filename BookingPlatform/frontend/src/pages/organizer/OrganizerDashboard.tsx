@@ -11,7 +11,8 @@ export default function OrganizerDashboard() {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const response = await EventService.getEvents({ limit: 50 });
+                // Fetch all events (not just published) for organizer dashboard
+                const response = await EventService.getEvents({ limit: 50, status: 'all' });
                 setEvents(response.data.events);
             } catch (err) {
                 setError('Failed to load events');
@@ -98,7 +99,7 @@ export default function OrganizerDashboard() {
                 </div>
                 <Link
                     to="/organizer/events/new"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-lg shadow-lg shadow-indigo-500/25"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-lg shadow-lg shadow-indigo-500/25"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -171,7 +172,7 @@ export default function OrganizerDashboard() {
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                 </svg>
-                                                {new Date(event.date).toLocaleDateString('en-IN', {
+                                                {new Date(event.eventDate).toLocaleDateString('en-IN', {
                                                     day: 'numeric',
                                                     month: 'short',
                                                     year: 'numeric'

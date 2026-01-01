@@ -22,25 +22,20 @@ export interface Section {
 
 export interface Event {
     id: string;
-    name: string;
-    title?: string;
+    name?: string;
+    title: string;
     description: string;
-    date: string;
-    time: string;
+    eventDate: string;      // ISO date string from backend
     endDate?: string;
-    venue: {
-        id: string;
-        name: string;
-        address: string;
-    };
+    gateOpenTime?: string;
+    basePrice: number;
+    venue: Venue;
     category: string;
     status: EventStatus;
     imageUrl?: string;
     bannerUrl?: string;
     totalSeats: number;
     availableSeats: number;
-    minPrice: number;
-    maxPrice: number;
     termsConditions?: string;
     createdAt?: string;
     updatedAt?: string;
@@ -49,13 +44,12 @@ export interface Event {
 export type EventStatus = 'DRAFT' | 'PUBLISHED' | 'CANCELLED' | 'COMPLETED';
 
 export type EventCategory =
-    | 'MUSIC'
+    | 'MOVIE'
+    | 'CONCERT'
     | 'SPORTS'
-    | 'COMEDY'
     | 'THEATER'
+    | 'COMEDY'
     | 'CONFERENCE'
-    | 'EXHIBITION'
-    | 'WORKSHOP'
     | 'OTHER';
 
 export interface CreateEventRequest {

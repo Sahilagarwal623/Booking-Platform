@@ -9,6 +9,8 @@ import EventDetails from './pages/EventDetails';
 import MyBookings from './pages/MyBookings';
 import OrganizerDashboard from './pages/organizer/OrganizerDashboard';
 import CreateEvent from './pages/organizer/CreateEvent';
+import BookingPage from './pages/BookingPage';
+import PaymentPage from './pages/PaymentPage';
 
 // Protected Route - requires authentication
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -61,9 +63,11 @@ const AppRoutes = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/events" element={<Events />} />
             <Route path="/events/:id" element={<EventDetails />} />
+            <Route path="/events/:id/book" element={<ProtectedRoute><BookingPage /></ProtectedRoute>} />
 
             {/* Protected Routes (any authenticated user) */}
             <Route path="/my-bookings" element={<ProtectedRoute><MyBookings /></ProtectedRoute>} />
+            <Route path="/bookings/:bookingId/payment" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
 
             {/* Organizer Routes */}
             <Route path="/organizer" element={<OrganizerRoute><OrganizerDashboard /></OrganizerRoute>} />

@@ -48,6 +48,24 @@ export const errorHandler = (
     } else if (err.name === 'TokenExpiredError') {
         statusCode = 401;
         message = 'Token expired';
+    } else if (err.name === 'PrismaClientKnownRequestError') {
+        // Handle Prisma-specific errors
+        const prismaError = err as any;
+        statusCode = 400;
+
+        if (prismaError.code === 'P2002') {
+            // Unique constraint violation
+            const target = prismaError.meta?.target;
+            message = `A record with this ${target || 'value'} already exists.`;
+        } else if (prismaError.code === 'P2025') {
+            // Record not found
+            statusCode = 404;
+            message = 'Record not found.';
+        } else {
+            message = prismaError.message || 'Database error occurred.';
+        }
+
+        console.error('Prisma Error:', prismaError.code, prismaError.meta);
     }
 
     // Log error in development

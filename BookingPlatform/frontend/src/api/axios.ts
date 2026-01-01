@@ -30,7 +30,7 @@ api.interceptors.response.use(
     async (error: AxiosError) => {
 
         // Will implement refresh token logic here
-        const originalRequest = error.config;
+        // const originalRequest = error.config;
 
         // Handle 401 Unauthorized
         if (error.response?.status === 401) {

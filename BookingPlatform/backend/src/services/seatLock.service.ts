@@ -57,19 +57,21 @@ export class SeatLockService {
                     );
                 }
 
-                // Step 2: Lock and verify seats are available
-                // Using raw query for SELECT ... FOR UPDATE NOWAIT
-                const lockedSeats: { id: string }[] = await tx.$queryRaw`
-          SELECT id FROM "Seat"
-          WHERE id = ANY(${seatIds}::uuid[])
-          AND "eventId" = ${eventId}::uuid
-          AND status = 'AVAILABLE'
-          FOR UPDATE NOWAIT
-        `;
+                // Step 2: Find and verify seats are available
+                // Using Prisma native query with serializable isolation instead of raw SQL
+                // The serializable isolation level protects against race conditions
+                const availableSeats = await tx.seat.findMany({
+                    where: {
+                        id: { in: seatIds },
+                        eventId: eventId,
+                        status: SeatStatus.AVAILABLE,
+                    },
+                    select: { id: true },
+                });
 
                 // Verify all requested seats are available
-                if (lockedSeats.length !== seatIds.length) {
-                    const availableIds = lockedSeats.map((s) => s.id);
+                if (availableSeats.length !== seatIds.length) {
+                    const availableIds = availableSeats.map((s) => s.id);
                     const unavailableIds = seatIds.filter((id) => !availableIds.includes(id));
                     throw new ApiError(
                         409,
@@ -78,14 +80,27 @@ export class SeatLockService {
                 }
 
                 // Step 3: Update seats to HELD status
-                await tx.seat.updateMany({
-                    where: { id: { in: seatIds } },
+                // Include status check in WHERE to prevent race conditions
+                const updateResult = await tx.seat.updateMany({
+                    where: {
+                        id: { in: seatIds },
+                        status: SeatStatus.AVAILABLE, // Only update if still available
+                    },
                     data: {
                         status: SeatStatus.HELD,
                         heldBy: userId,
                         heldUntil: expiresAt,
+                        version: { increment: 1 }, // Increment version for tracking
                     },
                 });
+
+                // Verify all seats were updated (race condition check)
+                if (updateResult.count !== seatIds.length) {
+                    throw new ApiError(
+                        409,
+                        'Some seats were booked by another user. Please try again.'
+                    );
+                }
 
                 // Step 4: Update available seats count on event
                 await tx.event.update({

@@ -5,13 +5,12 @@ import { VenueService } from '../../api/venue.api';
 import type { Venue, EventCategory } from '../../types/event.types';
 
 const EVENT_CATEGORIES: { value: EventCategory; label: string }[] = [
-    { value: 'MUSIC', label: 'Music' },
+    { value: 'MOVIE', label: 'Movie' },
+    { value: 'CONCERT', label: 'Concert' },
     { value: 'SPORTS', label: 'Sports' },
-    { value: 'COMEDY', label: 'Comedy' },
     { value: 'THEATER', label: 'Theater' },
+    { value: 'COMEDY', label: 'Comedy' },
     { value: 'CONFERENCE', label: 'Conference' },
-    { value: 'EXHIBITION', label: 'Exhibition' },
-    { value: 'WORKSHOP', label: 'Workshop' },
     { value: 'OTHER', label: 'Other' },
 ];
 
@@ -21,7 +20,7 @@ export default function CreateEvent() {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        category: 'MUSIC' as EventCategory,
+        category: 'MOVIE' as EventCategory,
         venueId: '',
         eventDate: '',
         eventTime: '',

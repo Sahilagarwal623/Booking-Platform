@@ -17,7 +17,7 @@ export const config = {
     // Seat Hold Configuration
     seatHold: {
         ttlSeconds: parseInt(process.env.SEAT_HOLD_TTL || '600'), // 10 minutes
-        maxSeatsPerUser: parseInt(process.env.MAX_SEATS_PER_USER || '10'),
+        maxSeatsPerUser: parseInt(process.env.MAX_SEATS_PER_USER || '6'),
     },
 
     // Redis (for distributed locking)

@@ -18,6 +18,10 @@ router.post('/hold-seats', async (req: Request, res: Response, next: NextFunctio
         const userId = req.user!.id;
         const { eventId, seatIds } = req.body;
 
+        console.log("eventId: ", eventId);
+        console.log("seatIds: ", seatIds);
+
+
         if (!eventId || !seatIds || !Array.isArray(seatIds) || seatIds.length === 0) {
             res.status(400).json({
                 success: false,
@@ -200,7 +204,7 @@ router.post('/:id/cancel', async (req: Request, res: Response, next: NextFunctio
     try {
         const userId = req.user!.id;
         const bookingId = req.params.id;
-        const { reason } = req.body;
+        const reason = req.body?.reason;
 
         if (!bookingId) {
             res.status(400).json({

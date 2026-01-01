@@ -1,55 +1,26 @@
 import api from './axios';
-import type {
-    Booking,
-    HoldSeatsRequest,
-    HoldSeatsResponse
-} from '../types/booking.types';
 import type { ApiResponse } from '../types/auth.types';
 
-interface BookingsListResponse {
-    bookings: Booking[];
-    pagination: {
-        page: number;
-        limit: number;
-        total: number;
-        totalPages: number;
-    };
+export interface HoldSeatsResponse {
+    seatIds: string[];
+    expiresAt: Date;
+    holdId: string;
+}
+
+export interface CreateBookingResponse {
+    id: string;
+    bookingNumber: string;
+    totalAmount: number;
+    status: string;
+    expiresAt: string;
 }
 
 export class BookingService {
     // Hold seats temporarily
-    static async holdSeats(data: HoldSeatsRequest): Promise<ApiResponse<HoldSeatsResponse>> {
-        const response = await api.post('/bookings/hold-seats', data);
-        return response.data;
-    }
+    static async holdSeats(eventId: string, seatIds: string[]): Promise<ApiResponse<HoldSeatsResponse>> {
+        console.log(eventId, seatIds);
 
-    // Create booking from held seats
-    static async createBooking(data: { eventId: string; seatIds: string[] }): Promise<ApiResponse<Booking>> {
-        const response = await api.post('/bookings/create', data);
-        return response.data;
-    }
-
-    // Confirm booking after payment
-    static async confirmBooking(bookingId: string, paymentId: string, paymentMethod: string): Promise<ApiResponse<Booking>> {
-        const response = await api.post(`/bookings/${bookingId}/confirm`, { paymentId, paymentMethod });
-        return response.data;
-    }
-
-    // Get user's bookings
-    static async getMyBookings(params?: { page?: number; limit?: number; status?: string }): Promise<ApiResponse<BookingsListResponse>> {
-        const response = await api.get('/bookings', { params });
-        return response.data;
-    }
-
-    // Get single booking
-    static async getBooking(id: string): Promise<ApiResponse<Booking>> {
-        const response = await api.get(`/bookings/${id}`);
-        return response.data;
-    }
-
-    // Cancel booking
-    static async cancelBooking(id: string, reason?: string): Promise<ApiResponse<Booking>> {
-        const response = await api.post(`/bookings/${id}/cancel`, { reason });
+        const response = await api.post('/bookings/hold-seats', { eventId, seatIds });
         return response.data;
     }
 
@@ -59,15 +30,27 @@ export class BookingService {
         return response.data;
     }
 
-    // Extend seat hold
-    static async extendHold(seatIds: string[], additionalSeconds?: number): Promise<ApiResponse<{ extended: number }>> {
-        const response = await api.post('/bookings/extend-hold', { seatIds, additionalSeconds });
+    // Create a pending booking
+    static async createBooking(eventId: string, seatIds: string[]): Promise<ApiResponse<CreateBookingResponse>> {
+        const response = await api.post('/bookings/create', { eventId, seatIds });
         return response.data;
     }
 
-    // Get hold status
-    static async getHoldStatus(eventId?: string): Promise<ApiResponse<unknown>> {
-        const response = await api.get('/bookings/hold-status', { params: { eventId } });
+    // Confirm booking (Payment integration placeholder)
+    static async confirmBooking(bookingId: string, paymentDetails: { paymentId: string; paymentMethod: string }): Promise<ApiResponse<any>> {
+        const response = await api.post(`/bookings/${bookingId}/confirm`, paymentDetails);
+        return response.data;
+    }
+
+    // Get user's bookings
+    static async getMyBookings(): Promise<ApiResponse<any>> {
+        const response = await api.get('/bookings');
+        return response.data;
+    }
+
+    // Cancel a booking
+    static async cancelBooking(bookingId: string): Promise<ApiResponse<any>> {
+        const response = await api.post(`/bookings/${bookingId}/cancel`);
         return response.data;
     }
 }

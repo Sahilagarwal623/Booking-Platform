@@ -18,6 +18,7 @@ router.get('/', optionalAuth, async (req: Request, res: Response, next: NextFunc
             dateTo,
             minPrice,
             maxPrice,
+            status,
             page = '1',
             limit = '10',
         } = req.query;
@@ -29,6 +30,7 @@ router.get('/', optionalAuth, async (req: Request, res: Response, next: NextFunc
             dateTo: dateTo ? new Date(dateTo as string) : undefined,
             minPrice: minPrice ? parseFloat(minPrice as string) : undefined,
             maxPrice: maxPrice ? parseFloat(maxPrice as string) : undefined,
+            status: status as string,  // 'all', 'DRAFT', 'PUBLISHED', etc.
         };
 
         const result = await EventService.getEvents(

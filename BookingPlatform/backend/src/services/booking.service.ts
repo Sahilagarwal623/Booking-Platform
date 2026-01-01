@@ -272,8 +272,15 @@ export class BookingService {
                 },
             });
 
-            // Release seats
+            // Get seat IDs before deleting items
             const seatIds = booking.items.map((item) => item.seatId);
+
+            // Delete booking items to free up the seatId unique constraint
+            await tx.bookingItem.deleteMany({
+                where: { bookingId },
+            });
+
+            // Release seats
             await tx.seat.updateMany({
                 where: { id: { in: seatIds } },
                 data: {
@@ -419,10 +426,19 @@ export class BookingService {
                 return 0;
             }
 
-            // Update status to EXPIRED
+            const bookingIds = expiredBookings.map((b) => b.id);
+
+            // Step 1: Delete booking items first (to free up the seatId unique constraint)
+            await tx.bookingItem.deleteMany({
+                where: {
+                    bookingId: { in: bookingIds },
+                },
+            });
+
+            // Step 2: Update booking status to EXPIRED
             await tx.booking.updateMany({
                 where: {
-                    id: { in: expiredBookings.map((b) => b.id) },
+                    id: { in: bookingIds },
                 },
                 data: {
                     status: BookingStatus.EXPIRED,

@@ -23,7 +23,7 @@ interface EventFilters {
     dateTo?: Date;
     minPrice?: number;
     maxPrice?: number;
-    status?: EventStatus;
+    status?: string;  // 'all', 'DRAFT', 'PUBLISHED', 'CANCELLED', 'COMPLETED'
 }
 
 /**
@@ -171,9 +171,15 @@ export class EventService {
     ) {
         const skip = (page - 1) * limit;
 
-        const where: Prisma.EventWhereInput = {
-            status: filters.status || EventStatus.PUBLISHED,
-        };
+        const where: Prisma.EventWhereInput = {};
+
+        // Handle status filter: 'all' returns all statuses, otherwise filter by specific status
+        if (filters.status && filters.status !== 'all') {
+            where.status = filters.status as EventStatus;
+        } else if (!filters.status) {
+            // Default to PUBLISHED for public listing
+            where.status = EventStatus.PUBLISHED;
+        }
 
         if (filters.category) {
             where.category = filters.category as EventCategory;
@@ -208,10 +214,9 @@ export class EventService {
                 where,
                 include: {
                     venue: {
-                        select: {
-                            name: true,
-                            city: true,
-                        },
+                        include: {
+                            sections: true
+                        }
                     },
                 },
                 orderBy: { eventDate: 'asc' },

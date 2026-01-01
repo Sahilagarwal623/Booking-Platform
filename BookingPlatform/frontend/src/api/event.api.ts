@@ -9,6 +9,11 @@ export class EventService {
         limit?: number;
         category?: string;
         status?: string;
+        minPrice?: number;
+        maxPrice?: number;
+        dateFrom?: string;
+        dateTo?: string;
+        city?: string;
     }): Promise<ApiResponse<EventsResponse>> {
         const response = await api.get('/events', { params });
         return response.data;
@@ -47,6 +52,7 @@ export class EventService {
     // Get seat availability for an event
     static async getSeatAvailability(id: string): Promise<ApiResponse<unknown>> {
         const response = await api.get(`/events/${id}/seats`);
+        console.log(response);
         return response.data;
     }
 }
