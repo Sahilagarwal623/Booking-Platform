@@ -2,13 +2,245 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Base styles */
+/* ========================================
+   CSS ANIMATIONS & KEYFRAMES
+   ======================================== */
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slide-in-right {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scale-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes float-slow {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-15px) rotate(5deg);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes glow-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.4), 0 0 40px rgba(16, 185, 129, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 30px rgba(16, 185, 129, 0.6), 0 0 60px rgba(16, 185, 129, 0.3);
+    }
+}
+
+@keyframes bounce-subtle {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes gradient-shift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes spin-slow {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.8);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+/* ========================================
+   ANIMATION UTILITY CLASSES
+   ======================================== */
+
+.animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+}
+
+.animate-slide-up {
+    animation: slide-up 0.6s ease-out forwards;
+}
+
+.animate-slide-in-right {
+    animation: slide-in-right 0.5s ease-out forwards;
+}
+
+.animate-scale-in {
+    animation: scale-in 0.4s ease-out forwards;
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-slow {
+    animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+.animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-bounce-subtle {
+    animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+.animate-gradient-shift {
+    background-size: 200% 200%;
+    animation: gradient-shift 4s ease infinite;
+}
+
+.animate-spin-slow {
+    animation: spin-slow 20s linear infinite;
+}
+
+/* Staggered animation delays for lists */
+.stagger-1 {
+    animation-delay: 0.1s;
+    opacity: 0;
+}
+
+.stagger-2 {
+    animation-delay: 0.2s;
+    opacity: 0;
+}
+
+.stagger-3 {
+    animation-delay: 0.3s;
+    opacity: 0;
+}
+
+.stagger-4 {
+    animation-delay: 0.4s;
+    opacity: 0;
+}
+
+.stagger-5 {
+    animation-delay: 0.5s;
+    opacity: 0;
+}
+
+.stagger-6 {
+    animation-delay: 0.6s;
+    opacity: 0;
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+
 body {
-    @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+    @apply bg-stone-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
     min-height: 100vh;
 }
 
-/* Custom scrollbar */
+/* ========================================
+   CUSTOM SCROLLBAR
+   ======================================== */
+
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -18,26 +250,132 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    @apply bg-slate-300 dark:bg-slate-700 rounded-full;
+    @apply bg-emerald-300 dark:bg-emerald-700 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-400 dark:bg-slate-600;
+    @apply bg-emerald-400 dark:bg-emerald-600;
 }
 
-/* Form input styles */
+/* ========================================
+   FORM INPUT STYLES
+   ======================================== */
+
 input,
 select,
 textarea {
-    @apply bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all duration-200;
+    @apply bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all duration-300;
 }
 
-/* Button base styles */
+input:focus,
+select:focus,
+textarea:focus {
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+}
+
+/* ========================================
+   BUTTON STYLES
+   ======================================== */
+
 button {
-    @apply transition-all duration-200;
+    @apply transition-all duration-300;
 }
 
-/* Link base styles */
+/* Primary Button Effect */
+.btn-primary {
+    @apply relative overflow-hidden;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+}
+
+.btn-primary:hover::before {
+    transform: translateX(100%);
+}
+
+/* ========================================
+   LINK STYLES
+   ======================================== */
+
 a {
     @apply transition-colors duration-200;
+}
+
+/* ========================================
+   CARD HOVER EFFECTS
+   ======================================== */
+
+.card-hover {
+    @apply transition-all duration-500;
+}
+
+.card-hover:hover {
+    transform: translateY(-8px);
+    box-shadow:
+        0 20px 40px -15px rgba(16, 185, 129, 0.15),
+        0 0 0 1px rgba(16, 185, 129, 0.1);
+}
+
+/* ========================================
+   GLASS MORPHISM
+   ======================================== */
+
+.glass {
+    @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/20 dark:border-slate-700/50;
+}
+
+/* ========================================
+   GRADIENT TEXT
+   ======================================== */
+
+.gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500;
+}
+
+.gradient-text-warm {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500;
+}
+
+/* ========================================
+   DECORATIVE ELEMENTS
+   ======================================== */
+
+.orb {
+    @apply absolute rounded-full blur-3xl opacity-30;
+    pointer-events: none;
+}
+
+.orb-emerald {
+    @apply bg-emerald-500;
+}
+
+.orb-teal {
+    @apply bg-teal-500;
+}
+
+.orb-amber {
+    @apply bg-amber-500;
+}
+
+/* ========================================
+   LOADING SKELETON
+   ======================================== */
+
+.skeleton {
+    @apply bg-slate-200 dark:bg-slate-800 rounded-lg overflow-hidden relative;
+}
+
+.skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
 }
