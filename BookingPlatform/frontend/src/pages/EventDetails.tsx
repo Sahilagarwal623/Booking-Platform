@@ -186,6 +186,22 @@ export default function EventDetails() {
                                     {event.availableSeats} / {event.totalSeats}
                                 </span>
                             </div>
+                            <div className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-800">
+                                <span className="text-slate-600 dark:text-slate-400">Price</span>
+                                <span className="text-indigo-600 dark:text-indigo-400 font-semibold text-lg">
+                                    {(() => {
+                                        const multipliers = event.venue?.sections?.map(s => s.priceMultiplier) || [];
+                                        if (multipliers.length > 0) {
+                                            const minPrice = event.basePrice * Math.min(...multipliers);
+                                            const maxPrice = event.basePrice * Math.max(...multipliers);
+                                            return minPrice === maxPrice
+                                                ? `₹${minPrice}`
+                                                : `₹${minPrice} - ₹${maxPrice}`;
+                                        }
+                                        return `₹${event.basePrice}`;
+                                    })()}
+                                </span>
+                            </div>
 
                         </div>
 

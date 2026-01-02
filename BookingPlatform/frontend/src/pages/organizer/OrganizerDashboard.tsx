@@ -200,6 +200,14 @@ export default function OrganizerDashboard() {
                                         >
                                             View
                                         </Link>
+                                        {(event.status === 'DRAFT' || event.status === 'PUBLISHED') && (
+                                            <Link
+                                                to={`/organizer/events/${event.id}/edit`}
+                                                className="px-4 py-2 text-sm font-medium text-indigo-400 hover:text-indigo-300 border border-indigo-500/30 hover:border-indigo-500/50 rounded-lg transition-colors"
+                                            >
+                                                Edit
+                                            </Link>
+                                        )}
                                         {event.status === 'DRAFT' && (
                                             <button
                                                 onClick={() => handlePublish(event.id)}

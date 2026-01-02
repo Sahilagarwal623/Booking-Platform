@@ -11,6 +11,7 @@ const EventDetails = React.lazy(() => import('./pages/EventDetails'));
 const MyBookings = React.lazy(() => import('./pages/MyBookings'));
 const OrganizerDashboard = React.lazy(() => import('./pages/organizer/OrganizerDashboard'));
 const CreateEvent = React.lazy(() => import('./pages/organizer/CreateEvent'));
+const EditEvent = React.lazy(() => import('./pages/organizer/EditEvent'));
 const BookingPage = React.lazy(() => import('./pages/BookingPage'));
 const PaymentPage = React.lazy(() => import('./pages/PaymentPage'));
 const Profile = React.lazy(() => import('./pages/Profile'));
@@ -69,6 +70,7 @@ const AppRoutes = () => {
                 {/* Organizer Routes */}
                 <Route path="/organizer" element={<OrganizerRoute><OrganizerDashboard /></OrganizerRoute>} />
                 <Route path="/organizer/events/new" element={<OrganizerRoute><CreateEvent /></OrganizerRoute>} />
+                <Route path="/organizer/events/:id/edit" element={<OrganizerRoute><EditEvent /></OrganizerRoute>} />
 
                 {/* Catch all */}
                 <Route path="*" element={<Navigate to="/" />} />
