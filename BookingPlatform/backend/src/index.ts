@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 
 import routes from './routes';
@@ -18,11 +19,14 @@ const port = config.port;
 // Security middleware
 app.use(helmet());
 
-// CORS
+// CORS - allow credentials for cookies
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true,
 }));
+
+// Cookie parser - must be before routes
+app.use(cookieParser());
 
 // Request logging
 if (config.nodeEnv === 'development') {

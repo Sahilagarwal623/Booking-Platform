@@ -20,7 +20,7 @@ export default function Register() {
 
         try {
             await register({ name, email, password, phone: phone || undefined });
-            navigate('/');
+            navigate('/events');
         } catch (err) {
             setError('Registration failed. Try again.');
         } finally {

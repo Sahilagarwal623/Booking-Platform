@@ -335,11 +335,11 @@ a {
    ======================================== */
 
 .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500;
+    @apply bg-clip-text text-transparent bg-linear-to-r from-emerald-500 via-teal-500 to-cyan-500;
 }
 
 .gradient-text-warm {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500;
+    @apply bg-clip-text text-transparent bg-linear-to-r from-amber-500 via-orange-500 to-rose-500;
 }
 
 /* ========================================

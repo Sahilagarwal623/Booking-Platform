@@ -24,6 +24,7 @@ interface JwtPayload {
 
 /**
  * Middleware to verify JWT token and attach user to request
+ * Reads token from cookies first, then falls back to Authorization header
  */
 export const authenticate = async (
     req: Request,
@@ -31,22 +32,20 @@ export const authenticate = async (
     next: NextFunction
 ): Promise<void> => {
     try {
-        const authHeader = req.headers.authorization;
+        // Try to get token from cookie first, then from header
+        let token = req.cookies?.accessToken;
 
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            res.status(401).json({
-                success: false,
-                message: 'Access denied. No token provided.',
-            });
-            return;
+        if (!token) {
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                token = authHeader.split(' ')[1];
+            }
         }
-
-        const token = authHeader.split(' ')[1];
 
         if (!token) {
             res.status(401).json({
                 success: false,
-                message: 'Access denied. Invalid token format.',
+                message: 'Access denied. No token provided.',
             });
             return;
         }
@@ -111,16 +110,17 @@ export const optionalAuth = async (
     next: NextFunction
 ): Promise<void> => {
     try {
-        const authHeader = req.headers.authorization;
+        // Try to get token from cookie first, then from header
+        let token = req.cookies?.accessToken;
 
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-            const token = authHeader.split(' ')[1];
-
-            if (!token) {
-                next();
-                return;
+        if (!token) {
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                token = authHeader.split(' ')[1];
             }
+        }
 
+        if (token) {
             const decoded = jwt.verify(token, config.jwt.secret) as unknown as JwtPayload;
 
             const user = await prisma.user.findUnique({

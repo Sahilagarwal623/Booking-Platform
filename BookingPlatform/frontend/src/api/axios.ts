@@ -8,15 +8,12 @@ const api = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true, // Important: Send cookies with requests
 });
 
-// Request interceptor - attach auth token
+// Request interceptor - no need to manually attach tokens, cookies are sent automatically
 api.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-        const token = localStorage.getItem('accessToken');
-        if (token && config.headers) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
         return config;
     },
     (error: AxiosError) => {
@@ -28,20 +25,26 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
+        const originalRequest = error.config;
 
-        // Will implement refresh token logic here
-        // const originalRequest = error.config;
+        // Handle 401 Unauthorized - try to refresh token
+        if (error.response?.status === 401 && originalRequest && !(originalRequest as any)._retry) {
+            (originalRequest as any)._retry = true;
 
-        // Handle 401 Unauthorized
-        if (error.response?.status === 401) {
-            // Clear tokens and redirect to login
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
-            localStorage.removeItem('user');
+            try {
+                // Try to refresh the token
+                await api.post('/auth/refresh-token');
+                // Retry the original request
+                return api(originalRequest);
+            } catch (refreshError) {
+                // Refresh failed, clear user data and redirect to login
+                localStorage.removeItem('user');
 
-            // Only redirect if not already on login page
-            if (window.location.pathname !== '/login') {
-                window.location.href = '/login';
+                // Only redirect if not already on login page
+                if (window.location.pathname !== '/login') {
+                    window.location.href = '/login';
+                }
+                return Promise.reject(refreshError);
             }
         }
 

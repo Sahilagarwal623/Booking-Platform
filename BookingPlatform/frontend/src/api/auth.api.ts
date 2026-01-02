@@ -14,16 +14,17 @@ export class AuthService {
         return response.data;
     }
 
-    static async refreshTokens(): Promise<ApiResponse<{ accessToken: string }>> {
-
-        const refreshToken = localStorage.getItem('refreshToken');
-        const response = await api.post('/auth/refresh-token', { refreshToken });
+    static async refreshTokens(): Promise<ApiResponse<{ message: string }>> {
+        const response = await api.post('/auth/refresh-token');
         return response.data;
     }
 
-    static logout(): void {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+    static async logout(): Promise<void> {
+        try {
+            await api.post('/auth/logout');
+        } catch (error) {
+            // Ignore errors on logout
+        }
         localStorage.removeItem('user');
     }
 

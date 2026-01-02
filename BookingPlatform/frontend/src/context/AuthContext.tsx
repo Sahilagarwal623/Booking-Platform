@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // Only restore user info from localStorage (not tokens - they're in cookies)
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
             setUser(JSON.parse(storedUser));
@@ -30,10 +31,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const login = async (credentials: LoginRequest) => {
         try {
             const response = await AuthService.login(credentials);
-            const { user, accessToken, refreshToken } = response.data;
+            const { user } = response.data;
+            // Only store user info, tokens are in HTTP-only cookies
             localStorage.setItem('user', JSON.stringify(user));
-            localStorage.setItem('accessToken', accessToken);
-            localStorage.setItem('refreshToken', refreshToken);
             setUser(user);
         } catch (error) {
             console.error('Login failed:', error);
@@ -44,18 +44,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const register = async (userData: RegisterRequest) => {
         try {
             const response = await AuthService.register(userData);
-            const { user, accessToken, refreshToken } = response.data;
+            const { user } = response.data;
+            // Only store user info, tokens are in HTTP-only cookies
             localStorage.setItem('user', JSON.stringify(user));
-            localStorage.setItem('accessToken', accessToken);
-            localStorage.setItem('refreshToken', refreshToken);
             setUser(user);
         } catch (error) {
             console.error('Register failed:', error);
+            throw error;
         }
     };
 
-    const logout = () => {
-        AuthService.logout();
+    const logout = async () => {
+        await AuthService.logout();
         setUser(null);
     };
 
