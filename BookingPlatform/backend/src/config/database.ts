@@ -8,8 +8,8 @@ import { Pool } from 'pg';
 // Create PostgreSQL connection pool
 const pool = new Pool({
     connectionString: process.env.DIRECT_URL,
-    max: 20, // Increase max connections (default is 10)
-    idleTimeoutMillis: 30000,
+    max: 5, // Increase max connections (default is 10)
+    idleTimeoutMillis: 60000,
     connectionTimeoutMillis: 10000, // Wait 10s for a connection
 });
 

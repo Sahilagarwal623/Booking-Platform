@@ -16,7 +16,7 @@ export default function Events() {
             const response = await EventService.getEvents(currentFilters);
             setEvents(response.data.events);
         } catch (err) {
-            setError('Failed to load events');
+            setError('Failed to load events less database uptime pls try atleast 3 times');
         } finally {
             setLoading(false);
         }
@@ -70,6 +70,18 @@ export default function Events() {
                                 </svg>
                             </div>
                             <p className="text-red-500 dark:text-red-400">{error}</p>
+                            <button
+                                onClick={() => {
+                                    setError('');
+                                    fetchEvents(filters);
+                                }}
+                                className="mt-4 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl shadow-lg shadow-indigo-500/25 transition-all inline-flex items-center gap-2"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                Retry
+                            </button>
                         </div>
                     ) : events.length === 0 ? (
                         <div className="text-center py-16 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm dark:shadow-none">
