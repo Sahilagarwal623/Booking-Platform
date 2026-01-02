@@ -31,23 +31,13 @@ export default function EventFilters({ currentFilters, onFilterChange, onClear }
         setLocalFilters(currentFilters);
     }, [currentFilters]);
 
-    const [isApplying, setIsApplying] = useState(false);
-
     const handleChange = (key: string, value: any) => {
         const newFilters = { ...localFilters, [key]: value };
         setLocalFilters(newFilters);
     };
 
     const handleApply = () => {
-        if (isApplying) return;
-
-        setIsApplying(true);
         onFilterChange(localFilters);
-
-        // Disable button for 2 seconds to prevent spam
-        setTimeout(() => {
-            setIsApplying(false);
-        }, 3000);
     };
 
     return (
@@ -64,8 +54,7 @@ export default function EventFilters({ currentFilters, onFilterChange, onClear }
                 </div>
                 <button
                     onClick={onClear}
-                    disabled={isApplying}
-                    className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 font-medium transition-colors"
                 >
                     Clear All
                 </button>
@@ -205,21 +194,11 @@ export default function EventFilters({ currentFilters, onFilterChange, onClear }
             {/* Apply Button */}
             <button
                 onClick={handleApply}
-                disabled={isApplying}
-                className="w-full py-3 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-300 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2 relative overflow-hidden group"
+                className="w-full py-3 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-2 relative overflow-hidden group"
             >
-                {isApplying ? (
-                    <>
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        Applying...
-                    </>
-                ) : (
-                    <>
-                        <span className="relative z-10">Apply Filters</span>
-                        {/* Shimmer effect */}
-                        <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                    </>
-                )}
+                <span className="relative z-10">Apply Filters</span>
+                {/* Shimmer effect */}
+                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
             </button>
         </div>
     );

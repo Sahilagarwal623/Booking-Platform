@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { EventService } from '../api/event.api';
 import type { Event } from '../types/event.types';
 import EventFilters from '../components/events/EventFilters';
+import { debounce } from '../utils/debounce';
 
 export default function Events() {
     const [events, setEvents] = useState<Event[]>([]);
@@ -10,7 +11,7 @@ export default function Events() {
     const [error, setError] = useState('');
     const [filters, setFilters] = useState({});
 
-    const fetchEvents = async (currentFilters = {}) => {
+    const fetchEvents = useCallback(async (currentFilters = {}) => {
         setLoading(true);
         try {
             const response = await EventService.getEvents(currentFilters);
@@ -20,20 +21,26 @@ export default function Events() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    // Debounced version of fetchEvents (300ms delay)
+    const debouncedFetchEvents = useMemo(
+        () => debounce((currentFilters: any) => fetchEvents(currentFilters), 500),
+        [fetchEvents]
+    );
 
     useEffect(() => {
         fetchEvents();
-    }, []);
+    }, [fetchEvents]);
 
     const handleFilterChange = (newFilters: any) => {
         setFilters(newFilters);
-        fetchEvents(newFilters);
+        debouncedFetchEvents(newFilters);
     };
 
     const handleClearFilters = () => {
         setFilters({});
-        fetchEvents({});
+        debouncedFetchEvents({});
     };
 
     return (
