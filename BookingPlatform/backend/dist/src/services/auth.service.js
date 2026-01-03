@@ -53,7 +53,6 @@ class AuthService {
                     id: true,
                     email: true,
                     name: true,
-                    phone: true,
                     role: true,
                     createdAt: true,
                 },
@@ -95,7 +94,6 @@ class AuthService {
                     id: user.id,
                     email: user.email,
                     name: user.name,
-                    phone: user.phone,
                     role: user.role,
                 } }, tokens);
         });

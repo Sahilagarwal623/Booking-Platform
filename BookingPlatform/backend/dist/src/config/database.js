@@ -22,8 +22,8 @@ const pg_1 = require("pg");
 // Create PostgreSQL connection pool
 const pool = new pg_1.Pool({
     connectionString: process.env.DIRECT_URL,
-    max: 20, // Increase max connections (default is 10)
-    idleTimeoutMillis: 30000,
+    max: 5, // Increase max connections (default is 10)
+    idleTimeoutMillis: 60000,
     connectionTimeoutMillis: 10000, // Wait 10s for a connection
 });
 // Create Prisma adapter

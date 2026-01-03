@@ -120,20 +120,5 @@ function initializeCronJobs() {
             console.error('[cron] Error cleaning notifications:', error);
         }
     }));
-    /**
-     * Keep-alive ping
-     * Runs every 14 minutes to prevent cold starts (Render sleeps after 15 mins)
-     */
-    node_cron_1.default.schedule('*/14 * * * *', () => __awaiter(this, void 0, void 0, function* () {
-        try {
-            const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000';
-            console.log(`[cron] Pinging ${backendUrl} to keep alive.`);
-            const response = yield fetch(backendUrl);
-            console.log(`[cron] Ping successful: ${response.status}`);
-        }
-        catch (error) {
-            console.error('[cron] Ping failed:', error);
-        }
-    }));
     console.log('[cron] Background jobs initialized successfully');
 }

@@ -18,22 +18,23 @@ const config_1 = require("../config");
 const database_1 = require("../config/database");
 /**
  * Middleware to verify JWT token and attach user to request
+ * Reads token from cookies first, then falls back to Authorization header
  */
 const authenticate = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            res.status(401).json({
-                success: false,
-                message: 'Access denied. No token provided.',
-            });
-            return;
+        // Try to get token from cookie first, then from header
+        let token = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.accessToken;
+        if (!token) {
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                token = authHeader.split(' ')[1];
+            }
         }
-        const token = authHeader.split(' ')[1];
         if (!token) {
             res.status(401).json({
                 success: false,
-                message: 'Access denied. Invalid token format.',
+                message: 'Access denied. No token provided.',
             });
             return;
         }
@@ -88,14 +89,17 @@ exports.authorize = authorize;
  * Optional authentication - doesn't fail if no token, but attaches user if valid token
  */
 const optionalAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const authHeader = req.headers.authorization;
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-            const token = authHeader.split(' ')[1];
-            if (!token) {
-                next();
-                return;
+        // Try to get token from cookie first, then from header
+        let token = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.accessToken;
+        if (!token) {
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                token = authHeader.split(' ')[1];
             }
+        }
+        if (token) {
             const decoded = jsonwebtoken_1.default.verify(token, config_1.config.jwt.secret);
             const user = yield database_1.prisma.user.findUnique({
                 where: { id: decoded.userId },
@@ -107,7 +111,7 @@ const optionalAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         }
         next();
     }
-    catch (_a) {
+    catch (_b) {
         // Token invalid, but that's okay for optional auth
         next();
     }
