@@ -72,21 +72,5 @@ export function initializeCronJobs() {
         }
     });
 
-    /**
-     * Keep-alive ping
-     * Runs every 14 minutes to prevent cold starts (Render sleeps after 15 mins)
-     */
-    cron.schedule('*/14 * * * *', async () => {
-        try {
-            const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000';
-            console.log(`[cron] Pinging ${backendUrl} to keep alive.`);
-
-            const response = await fetch(backendUrl);
-            console.log(`[cron] Ping successful: ${response.status}`);
-        } catch (error) {
-            console.error('[cron] Ping failed:', error);
-        }
-    });
-
     console.log('[cron] Background jobs initialized successfully');
 }
