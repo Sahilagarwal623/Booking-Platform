@@ -907,13 +907,4 @@ This project is licensed under the ISC License.
 
 ## 👨‍💻 Author
 
-Built with ❤️ by Sahil Agarwal
-
----
-
-## 🙏 Acknowledgments
-
-- [Prisma](https://www.prisma.io/) for the amazing ORM
-- [React](https://react.dev/) for the UI framework
-- [Tailwind CSS](https://tailwindcss.com/) for styling
-- [Vite](https://vitejs.dev/) for the blazing fast build tool
+Built by Sahil Agarwal
